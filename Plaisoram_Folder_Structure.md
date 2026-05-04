@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-04-29
+> **Generated:** 2026-05-04 11:38:13
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -19,6 +19,7 @@ plaisoram_web/
 ├── .gitignore
 ├── .release-please-manifest.json
 ├── AGENTS.md
+├── CHANGELOG.md
 ├── CLAUDE.md
 ├── README.md
 ├── biome.json
@@ -40,6 +41,8 @@ plaisoram_web/
 │   └── window.svg
 ├── release-please-config.json
 ├── src/
+│   ├── actions/
+│   │   └── auth.ts
 │   ├── app/
 │   │   ├── (auth)/
 │   │   │   ├── layout.tsx
@@ -47,15 +50,23 @@ plaisoram_web/
 │   │   │   │   └── page.tsx
 │   │   │   └── signup/
 │   │   │       └── page.tsx
-│   │   ├── api/
-│   │   ├── devices/
-│   │   │   ├── add/
+│   │   ├── (dashboard)/
+│   │   │   ├── devices/
+│   │   │   │   ├── add/
+│   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
-│   │   │   └── page.tsx
-│   │   ├── layout.tsx
-│   │   ├── media/
-│   │   │   └── page.tsx
-│   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── media/
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── playlists/
+│   │   │       ├── editLayout/
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
+│   │   ├── api/
+│   │   │   └── [...slug]/
+│   │   │       └── route.ts
+│   │   └── layout.tsx
 │   ├── components/
 │   │   ├── Dashboard/
 │   │   │   ├── ActionCard.tsx
@@ -90,6 +101,7 @@ plaisoram_web/
 │   │       ├── dropdown-menu.tsx
 │   │       ├── empty.tsx
 │   │       ├── field.tsx
+│   │       ├── form.tsx
 │   │       ├── hover-card.tsx
 │   │       ├── input-group.tsx
 │   │       ├── input-otp.tsx
@@ -121,19 +133,12 @@ plaisoram_web/
 │   │       ├── toggle-group.tsx
 │   │       ├── toggle.tsx
 │   │       └── tooltip.tsx
-│   ├── features/
-│   │   ├── feature1/
-│   │   │   ├── constants/
-│   │   │   ├── hooks/
-│   │   │   └── lib/
-│   │   │       └── utils.ts
-│   │   └── feature2/
-│   │       ├── schemas/
-│   │       └── types/
 │   ├── hooks/
 │   │   └── use-mobile.ts
 │   ├── lib/
+│   │   ├── api.ts
 │   │   └── utils.ts
+│   ├── proxy.ts
 │   ├── styles/
 │   │   ├── favicon.ico
 │   │   └── globals.css
@@ -143,9 +148,7 @@ plaisoram_web/
 ```
 
 ---
-
 ## Server Project — Plaisoram_Server
-
 ```
 Plaisoram_Server/
 ├── .editorconfig
@@ -153,7 +156,11 @@ Plaisoram_Server/
 ├── .env.dev
 ├── .env.local
 ├── .env.test
+├── .github/
+│   └── workflows/
+│       └── release.yml
 ├── .gitignore
+├── .releaserc.json
 ├── assets/
 │   ├── app.js
 │   ├── controllers/
@@ -173,6 +180,9 @@ Plaisoram_Server/
 ├── composer.phar
 ├── config/
 │   ├── bundles.php
+│   ├── jwt/
+│   │   ├── private.pem
+│   │   └── public.pem
 │   ├── packages/
 │   │   ├── asset_mapper.yaml
 │   │   ├── cache.yaml
@@ -181,6 +191,8 @@ Plaisoram_Server/
 │   │   ├── doctrine.yaml
 │   │   ├── doctrine_migrations.yaml
 │   │   ├── framework.yaml
+│   │   ├── gesdinet_jwt_refresh_token.yaml
+│   │   ├── lexik_jwt_authentication.yaml
 │   │   ├── mailer.yaml
 │   │   ├── mercure.yaml
 │   │   ├── messenger.yaml
@@ -206,8 +218,7 @@ Plaisoram_Server/
 ├── importmap.php
 ├── mercure_app/
 ├── migrations/
-│   ├── .gitignore
-│   └── Version20260422150822.php
+│   └── Version20260430104847.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── index.php
@@ -219,25 +230,30 @@ Plaisoram_Server/
 │           ├── IMG-20231103-WA0032-69e9ebd3019b8.jpg
 │           ├── Music1-69e9edd4dddda.mp4
 │           ├── Music2-69e9ee634a58e.mp4
+│           ├── Sobrus-69f35825d0e80.png
 │           └── image-1-69eb2da4d683e.png
 ├── src/
 │   ├── Controller/
 │   │   ├── .gitignore
 │   │   ├── DeviceController.php
 │   │   ├── MediaController.php
-│   │   └── PlayerController.php
+│   │   ├── PlayerController.php
+│   │   └── RegistrationController.php
 │   ├── Entity/
 │   │   ├── .gitignore
 │   │   ├── Device.php
 │   │   ├── Media.php
 │   │   ├── Playlist.php
 │   │   ├── PlaylistMedia.php
+│   │   ├── RefreshToken.php
+│   │   ├── User.php
 │   │   └── Workspace.php
 │   ├── EventListener/
 │   │   └── DeviceStatusListener.php
 │   ├── Kernel.php
 │   └── Repository/
-│       └── .gitignore
+│       ├── .gitignore
+│       └── UserRepository.php
 ├── symfony.lock
 ├── templates/
 │   └── base.html.twig
@@ -246,9 +262,6 @@ Plaisoram_Server/
 └── translations/
     └── .gitignore
 ```
-
----
-
 ## Player Project — Plaisoram_Player
 
 ```
@@ -442,4 +455,6 @@ Plaisoram_Player/
 ```
 
 ---
+
+
 

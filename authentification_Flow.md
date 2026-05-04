@@ -8,7 +8,7 @@ This document maps out the complete authentication lifecycle between the Plaisor
 sequenceDiagram
     autonumber
     actor User as User (Browser)
-    participant NextJS_Middleware as Middleware<br/>(src/middleware.ts)
+    participant NextJS_Middleware as Proxy<br/>(src/proxy.ts)
     participant NextJS_Page as Auth Page<br/>(login/page.tsx)
     participant NextJS_Action as Server Action<br/>(src/actions/auth.ts)
     participant Symfony_Login as Symfony API<br/>(/api/login_check)
@@ -63,7 +63,7 @@ sequenceDiagram
 ### Plaisoram Web (Next.js)
 - **`src/app/(auth)/login/page.tsx` & `src/app/(auth)/signup/page.tsx`**: The client-side UI where the user inputs their credentials. They invoke the secure Server Actions instead of making direct HTTP requests to the backend.
 - **`src/actions/auth.ts`**: The Backend-For-Frontend (BFF) Server Actions. These run on the Node.js server, call the Symfony backend directly, and set the strict `HttpOnly`, `Secure` cookies.
-- **`src/middleware.ts`**: Edge middleware that intercepts every request to the Next.js app to ensure the user possesses an active authentication cookie before allowing them to access private routes.
+- **`src/proxy.ts`**: Edge proxy that intercepts every request to the Next.js app to ensure the user possesses an active authentication cookie before allowing them to access private routes.
 - **`src/lib/api.ts`**: The `fetchApi` wrapper intended for Next.js Server Components. It automatically extracts the JWT from the cookies, injects it into the `Authorization` header, and handles the transparent 401 retry-with-refresh logic.
 
 ### Plaisoram Server (Symfony)
