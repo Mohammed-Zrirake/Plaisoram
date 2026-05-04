@@ -1,6 +1,6 @@
 # Authentication Flow Architecture
 
-This document maps out the complete authentication lifecycle between the Plaisoram Next.js Web Frontend and the Symfony Server Backend. It details the steps for logging in, protecting routes, making authenticated requests, and rotating refresh tokens invisibly.
+This document maps out the complete authentication lifecycle between the Plaisoram Next.js Web Frontend and the Symfony Server Backend. It details the steps for logging in, protecting routes, making authenticated requests, and proactively rotating refresh tokens invisibly.
 
 ## Sequence Diagram
 
@@ -8,14 +8,15 @@ This document maps out the complete authentication lifecycle between the Plaisor
 sequenceDiagram
     autonumber
     actor User as User (Browser)
-    participant NextJS_Middleware as Proxy<br/>(src/proxy.ts)
+    participant NextJS_Middleware as Path Protection<br/>(src/proxy.ts)
     participant NextJS_Page as Auth Page<br/>(login/page.tsx)
+    participant NextJS_Client as Client Page<br/>(e.g. DevicesPage)
     participant NextJS_Action as Server Action<br/>(src/actions/auth.ts)
+    participant NextJS_Proxy as BFF API Proxy<br/>(api/[...slug]/route.ts)
+    participant Symfony_Register as Symfony API<br/>(/api/register)
     participant Symfony_Login as Symfony API<br/>(/api/login_check)
     participant Symfony_Refresh as Symfony API<br/>(/api/token/refresh)
-    participant NextJS_API as API Interceptor<br/>(src/lib/api.ts)
     participant Symfony_Protected as Symfony API<br/>(/api/*)
-    participant Symfony_Register as Symfony API<br/>(/api/register)
 
     Note over User, Symfony_Protected: 1. Registration & Workspace Provisioning
     User->>NextJS_Page: Submits Details (Name, Email, Org, Password)
@@ -35,7 +36,7 @@ sequenceDiagram
     NextJS_Action-->>NextJS_Page: Returns { success: true }
     NextJS_Page->>User: router.push('/')
 
-    Note over User, Symfony_Protected: 3. Accessing Protected Pages
+    Note over User, Symfony_Protected: 3. Accessing Protected Pages (Middleware)
     User->>NextJS_Middleware: Requests private page (e.g. '/')
     NextJS_Middleware->>NextJS_Middleware: Checks for 'token' or 'refresh_token' cookie
     alt Has Cookies
@@ -44,27 +45,30 @@ sequenceDiagram
         NextJS_Middleware-->>User: Redirects to /login
     end
 
-    Note over User, Symfony_Protected: 4. Making Authenticated API Calls & Token Rotation
-    NextJS_API->>Symfony_Protected: fetchApi('/api/data') + Bearer Token
-    alt Token is Valid
-        Symfony_Protected-->>NextJS_API: Returns 200 OK + Data
-    else Token Expired (401)
-        Symfony_Protected-->>NextJS_API: Returns 401 Unauthorized
-        NextJS_API->>Symfony_Refresh: POST /api/token/refresh + refresh_token
-        Symfony_Refresh-->>NextJS_API: Returns NEW JWT & NEW Refresh Token
-        NextJS_API->>User: Updates HttpOnly Cookies
-        NextJS_API->>Symfony_Protected: Retries original request with NEW JWT
-        Symfony_Protected-->>NextJS_API: Returns 200 OK + Data
+    Note over User, Symfony_Protected: 4. Authenticated API Calls & Proactive Token Rotation
+    NextJS_Client->>NextJS_Proxy: fetch('/api/devices')
+    NextJS_Proxy->>NextJS_Proxy: Reads HttpOnly 'token' & 'refresh_token'<br/>Decodes JWT to check 'exp' claim
+    alt Token Missing or Expired (within 30s buffer)
+        NextJS_Proxy->>Symfony_Refresh: POST /api/token/refresh + refresh_token
+        Symfony_Refresh-->>NextJS_Proxy: Returns NEW JWT & NEW Refresh Token
+        NextJS_Proxy->>User: Appends Set-Cookie headers for new tokens
     end
+    NextJS_Proxy->>Symfony_Protected: Proxies original request with valid Bearer Token
+    Symfony_Protected-->>NextJS_Proxy: Returns 200 OK + Data
+    NextJS_Proxy-->>NextJS_Client: Returns 200 OK + Data
 ```
 
 ## Files Involved
 
 ### Plaisoram Web (Next.js)
-- **`src/app/(auth)/login/page.tsx` & `src/app/(auth)/signup/page.tsx`**: The client-side UI where the user inputs their credentials. They invoke the secure Server Actions instead of making direct HTTP requests to the backend.
-- **`src/actions/auth.ts`**: The Backend-For-Frontend (BFF) Server Actions. These run on the Node.js server, call the Symfony backend directly, and set the strict `HttpOnly`, `Secure` cookies.
-- **`src/proxy.ts`**: Edge proxy that intercepts every request to the Next.js app to ensure the user possesses an active authentication cookie before allowing them to access private routes.
-- **`src/lib/api.ts`**: The `fetchApi` wrapper intended for Next.js Server Components. It automatically extracts the JWT from the cookies, injects it into the `Authorization` header, and handles the transparent 401 retry-with-refresh logic.
+- **`src/app/(auth)/login/page.tsx` & `src/app/(auth)/signup/page.tsx`**: The client-side UI where the user inputs their credentials. They invoke secure Server Actions instead of making direct HTTP requests to the backend.
+- **`src/actions/auth.ts`**: The Backend-For-Frontend (BFF) Server Actions. These run on the Node.js server, call the Symfony backend directly to authenticate, and set the strict `HttpOnly`, `Secure` session cookies.
+- **`src/proxy.ts`**: Next.js Middleware that intercepts requests to Next.js page routes, ensuring the user possesses an active authentication cookie before allowing them to access private dashboards.
+- **`src/app/api/[...slug]/route.ts`**: The Backend-For-Frontend (BFF) API Proxy. Intercepts all client-side `fetch('/api/*')` calls. It is responsible for:
+  - Reading the `HttpOnly` token cookies securely (which the browser JS cannot do).
+  - Proactively checking the JWT expiration (`exp`) claim.
+  - Transparently exchanging the `refresh_token` for a new JWT if the current token is expired (or about to expire) *before* forwarding the request.
+  - Forwarding the request to Symfony (`http://localhost:8000/api/*`) with the valid `Authorization: Bearer <token>` header.
 
 ### Plaisoram Server (Symfony)
 - **`src/Controller/RegistrationController.php`**: Handles the initial `POST /api/register`. It securely hashes the password, automatically provisions a dedicated `Workspace` for multi-tenant data isolation, and bonds the new user to this Workspace.
