@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-04 11:38:13
+> **Generated:** 2026-05-07 13:54:41
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -57,10 +57,16 @@ plaisoram_web/
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── media/
+│   │   │   │   ├── components/
+│   │   │   │   │   └── FolderModal.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
 │   │   │   └── playlists/
 │   │   │       ├── editLayout/
+│   │   │       │   ├── components/
+│   │   │       │   │   ├── DevicePickerModal.tsx
+│   │   │       │   │   ├── MediaPickerModal.tsx
+│   │   │       │   │   └── TVCanvas.tsx
 │   │   │       │   └── page.tsx
 │   │   │       └── page.tsx
 │   │   ├── api/
@@ -137,6 +143,7 @@ plaisoram_web/
 │   │   └── use-mobile.ts
 │   ├── lib/
 │   │   ├── api.ts
+│   │   ├── layouts.ts
 │   │   └── utils.ts
 │   ├── proxy.ts
 │   ├── styles/
@@ -148,7 +155,9 @@ plaisoram_web/
 ```
 
 ---
+
 ## Server Project — Plaisoram_Server
+
 ```
 Plaisoram_Server/
 ├── .editorconfig
@@ -218,36 +227,50 @@ Plaisoram_Server/
 ├── importmap.php
 ├── mercure_app/
 ├── migrations/
-│   └── Version20260430104847.php
+│   ├── Version20260430104847.php
+│   ├── Version20260506122040.php
+│   ├── Version20260506124431.php
+│   ├── Version20260506154437.php
+│   └── Version20260507105000.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── index.php
 │   ├── tv-player.html
 │   └── uploads/
 │       └── media/
+│           ├── 233K-views-3-7K-reactions-Every-API-Type-Explained-in-4-Minutes-69fc8859f1067.mp4
+│           ├── 3-Minute-Timer-with-Music-Eternal-Calm-Music-69fc7f3fa67d9.mp4
+│           ├── ChatGPT-Image-Apr-30-2026-10-23-58-PM-69fc7f477bfbb.png
 │           ├── Deadline-69e8faf9af433.jpg
+│           ├── Four-Minute-Meditation-Music-Video-69fb523ee9528.mp4
 │           ├── GoodReads-69e8f27989112.jpg
 │           ├── IMG-20231103-WA0032-69e9ebd3019b8.jpg
+│           ├── Main-1280-720-69fc85864733a.png
+│           ├── Main-2000-1900-69fc8589ce6f4.png
 │           ├── Music1-69e9edd4dddda.mp4
 │           ├── Music2-69e9ee634a58e.mp4
-│           ├── Sobrus-69f35825d0e80.png
+│           ├── Sobrus-69fc889564946.png
 │           └── image-1-69eb2da4d683e.png
 ├── src/
 │   ├── Controller/
 │   │   ├── .gitignore
 │   │   ├── DeviceController.php
 │   │   ├── MediaController.php
+│   │   ├── MediaFolderController.php
 │   │   ├── PlayerController.php
+│   │   ├── PlaylistController.php
 │   │   └── RegistrationController.php
 │   ├── Entity/
 │   │   ├── .gitignore
 │   │   ├── Device.php
 │   │   ├── Media.php
+│   │   ├── MediaFolder.php
 │   │   ├── Playlist.php
 │   │   ├── PlaylistMedia.php
 │   │   ├── RefreshToken.php
 │   │   ├── User.php
-│   │   └── Workspace.php
+│   │   ├── Workspace.php
+│   │   └── Zone.php
 │   ├── EventListener/
 │   │   └── DeviceStatusListener.php
 │   ├── Kernel.php
@@ -262,6 +285,9 @@ Plaisoram_Server/
 └── translations/
     └── .gitignore
 ```
+
+---
+
 ## Player Project — Plaisoram_Player
 
 ```
@@ -344,9 +370,11 @@ Plaisoram_Player/
 │           │               │   │   ├── PlaisoramApi.kt
 │           │               │   │   ├── WeatherApi.kt
 │           │               │   │   └── dto/
+│           │               │   │       ├── InitDeviceRequestDto.kt
 │           │               │   │       ├── InitDeviceResponseDto.kt
 │           │               │   │       ├── PairingResponseDto.kt
 │           │               │   │       ├── PlaylistItemDto.kt
+│           │               │   │       ├── PlaylistLayoutDto.kt
 │           │               │   │       └── WeatherDto.kt
 │           │               │   ├── repository/
 │           │               │   │   ├── DeviceRepositoryImpl.kt
@@ -402,7 +430,8 @@ Plaisoram_Player/
 │           │                   │   ├── MultiZoneLayout.kt
 │           │                   │   ├── NewsWidget.kt
 │           │                   │   ├── VideoPlayer.kt
-│           │                   │   └── WeatherWidget.kt
+│           │                   │   ├── WeatherWidget.kt
+│           │                   │   └── ZonedLayoutRenderer.kt
 │           │                   ├── pairing/
 │           │                   │   └── PairingScreen.kt
 │           │                   ├── player/
@@ -455,6 +484,4 @@ Plaisoram_Player/
 ```
 
 ---
-
-
 
