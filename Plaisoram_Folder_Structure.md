@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-07 13:54:41
+> **Generated:** 2026-05-13 12:20:00
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -9,6 +9,7 @@
 ---
 
 ## Web Project — plaisoram_web
+
 
 ```
 plaisoram_web/
@@ -143,6 +144,7 @@ plaisoram_web/
 │   │   └── use-mobile.ts
 │   ├── lib/
 │   │   ├── api.ts
+│   │   ├── fetchClient.ts
 │   │   ├── layouts.ts
 │   │   └── utils.ts
 │   ├── proxy.ts
@@ -199,6 +201,7 @@ Plaisoram_Server/
 │   │   ├── debug.yaml
 │   │   ├── doctrine.yaml
 │   │   ├── doctrine_migrations.yaml
+│   │   ├── flysystem.yaml
 │   │   ├── framework.yaml
 │   │   ├── gesdinet_jwt_refresh_token.yaml
 │   │   ├── lexik_jwt_authentication.yaml
@@ -249,7 +252,9 @@ Plaisoram_Server/
 │           ├── Main-2000-1900-69fc8589ce6f4.png
 │           ├── Music1-69e9edd4dddda.mp4
 │           ├── Music2-69e9ee634a58e.mp4
+│           ├── Sidebar-480-1000-69fcae53d7d90.jpg
 │           ├── Sobrus-69fc889564946.png
+│           ├── Sobrus-Custom-69fcb6065dfaa.png
 │           └── image-1-69eb2da4d683e.png
 ├── src/
 │   ├── Controller/

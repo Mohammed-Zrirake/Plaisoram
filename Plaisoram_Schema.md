@@ -1,8 +1,12 @@
 # Plaisoram Database Schema
 
-This document represents the current state of the Plaisoram database schema, including the multi-tenancy updates linking Users, Devices, Media, and Playlists to Workspaces, as well as the new layout/zone structures.
+This document represents the current state of the Plaisoram database schemas for both the **Server Backend** and the **Digital Player App**.
 
-## Entity-Relationship Diagram
+## 1. Server Database Schema
+
+This schema handles the multi-tenancy architecture, linking Users, Devices, Media, and Playlists to Workspaces, as well as the layout and zone structures for digital signage.
+
+### Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -112,7 +116,7 @@ erDiagram
     MEDIA ||--o{ ZONE : "included in"
 ```
 
-## DBML (Database Markup Language) Definition
+### DBML (Database Markup Language) Definition
 
 ```dbml
 Table workspace {
@@ -218,4 +222,93 @@ Ref: zone.playlist_id > playlist.id
 Ref: zone.mediaId > media.id
 Ref: playlist_media.zoneId > zone.id
 Ref: playlist_media.mediaId > media.id
+```
+
+## 2. Digital Player App Database Schema
+
+This schema handles the local caching of playlists, media synchronization status, device configuration, and widget data (weather, news) on the Android Digital Signage Player using a Room SQLite database.
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    device_config {
+        string deviceId PK
+        string screenKey "nullable"
+        boolean isPaired
+        string accessToken "nullable"
+        string refreshToken "nullable"
+        string serverUrl
+    }
+    
+    playlist_items {
+        string id PK
+        string playlistId
+        string mediaId
+        string type
+        string remoteUrl "nullable"
+        string localPath "nullable"
+        string checksum "nullable"
+        int durationSeconds
+        int displayOrder
+        string downloadStatus
+    }
+
+    weather {
+        string cityName PK
+        string times
+        string temperatures
+        string weatherCodes
+        long lastUpdated
+        string windSpeeds
+    }
+
+    news {
+        string url PK
+        string title
+        string source
+        long publishedAt
+    }
+```
+
+### DBML (Database Markup Language) Definition
+
+```dbml
+Table device_config {
+  deviceId varchar(255) [pk]
+  screenKey varchar(255) [null]
+  isPaired boolean
+  accessToken text [null]
+  refreshToken text [null]
+  serverUrl varchar(255)
+}
+
+Table playlist_items {
+  id varchar(255) [pk]
+  playlistId varchar(255)
+  mediaId varchar(255)
+  type varchar(50)
+  remoteUrl varchar(255) [null]
+  localPath varchar(255) [null]
+  checksum varchar(255) [null]
+  durationSeconds int
+  displayOrder int
+  downloadStatus varchar(50)
+}
+
+Table weather {
+  cityName varchar(255) [pk]
+  times text
+  temperatures text
+  weatherCodes text
+  lastUpdated bigint
+  windSpeeds text
+}
+
+Table news {
+  url varchar(255) [pk]
+  title varchar(255)
+  source varchar(255)
+  publishedAt bigint
+}
 ```
