@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-13 12:20:00
+> **Generated:** 2026-05-13 18:26:12
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -10,7 +10,6 @@
 
 ## Web Project — plaisoram_web
 
-
 ```
 plaisoram_web/
 ├── .env.local
@@ -18,7 +17,6 @@ plaisoram_web/
 │   └── workflows/
 │       └── release.yml
 ├── .gitignore
-├── .release-please-manifest.json
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── CLAUDE.md
@@ -40,7 +38,6 @@ plaisoram_web/
 │   ├── next.svg
 │   ├── vercel.svg
 │   └── window.svg
-├── release-please-config.json
 ├── src/
 │   ├── actions/
 │   │   └── auth.ts
@@ -71,7 +68,9 @@ plaisoram_web/
 │   │   │       │   └── page.tsx
 │   │   │       └── page.tsx
 │   │   ├── api/
-│   │   │   └── [...slug]/
+│   │   │   ├── [...slug]/
+│   │   │   │   └── route.ts
+│   │   │   └── logout/
 │   │   │       └── route.ts
 │   │   └── layout.tsx
 │   ├── components/
@@ -172,6 +171,8 @@ Plaisoram_Server/
 │       └── release.yml
 ├── .gitignore
 ├── .releaserc.json
+├── .upsun/
+│   └── config.yaml
 ├── assets/
 │   ├── app.js
 │   ├── controllers/
@@ -230,32 +231,14 @@ Plaisoram_Server/
 ├── importmap.php
 ├── mercure_app/
 ├── migrations/
-│   ├── Version20260430104847.php
-│   ├── Version20260506122040.php
-│   ├── Version20260506124431.php
-│   ├── Version20260506154437.php
-│   └── Version20260507105000.php
+│   └── Version20260513163802.php
 ├── phpunit.dist.xml
 ├── public/
-│   ├── index.php
-│   ├── tv-player.html
-│   └── uploads/
-│       └── media/
-│           ├── 233K-views-3-7K-reactions-Every-API-Type-Explained-in-4-Minutes-69fc8859f1067.mp4
-│           ├── 3-Minute-Timer-with-Music-Eternal-Calm-Music-69fc7f3fa67d9.mp4
-│           ├── ChatGPT-Image-Apr-30-2026-10-23-58-PM-69fc7f477bfbb.png
-│           ├── Deadline-69e8faf9af433.jpg
-│           ├── Four-Minute-Meditation-Music-Video-69fb523ee9528.mp4
-│           ├── GoodReads-69e8f27989112.jpg
-│           ├── IMG-20231103-WA0032-69e9ebd3019b8.jpg
-│           ├── Main-1280-720-69fc85864733a.png
-│           ├── Main-2000-1900-69fc8589ce6f4.png
-│           ├── Music1-69e9edd4dddda.mp4
-│           ├── Music2-69e9ee634a58e.mp4
-│           ├── Sidebar-480-1000-69fcae53d7d90.jpg
-│           ├── Sobrus-69fc889564946.png
-│           ├── Sobrus-Custom-69fcb6065dfaa.png
-│           └── image-1-69eb2da4d683e.png
+│   └── index.php
+├── scratch/
+│   ├── list_files.php
+│   ├── test_b2_final.php
+│   └── test_serve.php
 ├── src/
 │   ├── Controller/
 │   │   ├── .gitignore
@@ -297,10 +280,6 @@ Plaisoram_Server/
 
 ```
 Plaisoram_Player/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml
-│       └── release.yml
 ├── .gitignore
 ├── Android/
 │   ├── Architecture/
