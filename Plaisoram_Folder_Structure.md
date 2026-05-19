@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-13 18:26:12
+> **Generated:** 2026-05-19 17:56:41
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -171,8 +171,6 @@ Plaisoram_Server/
 │       └── release.yml
 ├── .gitignore
 ├── .releaserc.json
-├── .upsun/
-│   └── config.yaml
 ├── assets/
 │   ├── app.js
 │   ├── controllers/
@@ -229,16 +227,12 @@ Plaisoram_Server/
 │   ├── routes.yaml
 │   └── services.yaml
 ├── importmap.php
-├── mercure_app/
 ├── migrations/
 │   └── Version20260513163802.php
 ├── phpunit.dist.xml
 ├── public/
+│   ├── .htaccess
 │   └── index.php
-├── scratch/
-│   ├── list_files.php
-│   ├── test_b2_final.php
-│   └── test_serve.php
 ├── src/
 │   ├── Controller/
 │   │   ├── .gitignore
