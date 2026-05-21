@@ -41,14 +41,15 @@ The backend handles the persistence, validation, and execution of schedules.
   - `POST /api/schedules`: Validates inputs. Enforces that `scheduled_at` cannot be in the past (allowing a 1-minute network buffer). Creates a `pending` schedule.
   - `GET /api/schedules`: Retrieves all schedules for the user's workspace.
 
-### C. Execution Engine (Worker Process)
-- **Command**: `ProcessSchedulesCommand` (`app:process-schedules`)
-- This command is designed to be run on a Cron Job (e.g., every minute) or via a daemonized worker (like Symfony Messenger).
+### C. Execution Engine (Symfony Messenger)
+- **Architecture**: The polling loop has been replaced by a Push-Based Delayed Message architecture using `symfony/messenger`.
 - **Procedure**:
-  1. Queries the database for schedules where `status = 'pending'` and `scheduled_at <= NOW()`.
-  2. For each schedule, it updates the target `Device` entity to point to the new `currentPlaylist`.
-  3. Marks the schedule as `completed` to maintain an audit log.
-  4. Flushes changes to the database.
+  1. When a schedule is created, `ScheduleController` dispatches a `PublishPlaylistMessage` with a `DelayStamp` specifying the exact milliseconds until execution.
+  2. The message is serialized and stored in the Doctrine transport (`messenger_messages` table).
+  3. A long-running worker process (`run-worker.bat` running `php bin/console messenger:consume async`) picks up the message at the exact millisecond it becomes due.
+  4. The `PublishPlaylistMessageHandler` receives the message, validates the schedule is still `pending`, updates the target `Device` entity to point to the new `currentPlaylist`, and marks the schedule as `completed`.
+  5. The handler then triggers the real-time Mercure update.
+- **Resilience**: If the Mercure push fails (or any other exception occurs), Messenger automatically catches it, rolls back the transaction, and retries the message using exponential backoff. If it fails repeatedly, it goes to the `failed` transport (Dead Letter Queue). This guarantees zero stuck `processing` zombie rows.
 
 ### D. Real-time Screen Updates (Mercure)
 - Immediately after updating the database, the worker publishes a JSON update payload to the **Mercure Hub**.

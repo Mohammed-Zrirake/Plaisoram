@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-20 16:53:14
+> **Generated:** 2026-05-21 13:38:31
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -253,14 +253,17 @@ Plaisoram_Server/
 ├── migrations/
 │   ├── Version20260513163802.php
 │   ├── Version20260519171003.php
-│   └── Version20260520134632.php
+│   ├── Version20260520134632.php
+│   └── Version20260520160213.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
 │   └── index.php
+├── run-scheduler.bat
 ├── src/
 │   ├── Command/
-│   │   └── CleanupPlaylistsCommand.php
+│   │   ├── CleanupPlaylistsCommand.php
+│   │   └── ProcessSchedulesCommand.php
 │   ├── Controller/
 │   │   ├── .gitignore
 │   │   ├── DeviceController.php
@@ -269,7 +272,8 @@ Plaisoram_Server/
 │   │   ├── PlayerController.php
 │   │   ├── PlaylistController.php
 │   │   ├── ProfileController.php
-│   │   └── RegistrationController.php
+│   │   ├── RegistrationController.php
+│   │   └── ScheduleController.php
 │   ├── Entity/
 │   │   ├── .gitignore
 │   │   ├── Device.php
@@ -277,6 +281,7 @@ Plaisoram_Server/
 │   │   ├── MediaFolder.php
 │   │   ├── Playlist.php
 │   │   ├── PlaylistMedia.php
+│   │   ├── PublishSchedule.php
 │   │   ├── RefreshToken.php
 │   │   ├── User.php
 │   │   ├── Workspace.php
