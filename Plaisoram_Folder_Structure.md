@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-19 17:56:41
+> **Generated:** 2026-05-20 16:53:14
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -40,7 +40,8 @@ plaisoram_web/
 │   └── window.svg
 ├── src/
 │   ├── actions/
-│   │   └── auth.ts
+│   │   ├── auth.ts
+│   │   └── profile.ts
 │   ├── app/
 │   │   ├── (auth)/
 │   │   │   ├── layout.tsx
@@ -49,6 +50,10 @@ plaisoram_web/
 │   │   │   └── signup/
 │   │   │       └── page.tsx
 │   │   ├── (dashboard)/
+│   │   │   ├── apps/
+│   │   │   │   └── page.tsx
+│   │   │   ├── canvas/
+│   │   │   │   └── page.tsx
 │   │   │   ├── devices/
 │   │   │   │   ├── add/
 │   │   │   │   │   └── page.tsx
@@ -59,14 +64,32 @@ plaisoram_web/
 │   │   │   │   │   └── FolderModal.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
-│   │   │   └── playlists/
-│   │   │       ├── editLayout/
-│   │   │       │   ├── components/
-│   │   │       │   │   ├── DevicePickerModal.tsx
-│   │   │       │   │   ├── MediaPickerModal.tsx
-│   │   │       │   │   └── TVCanvas.tsx
+│   │   │   ├── playlists/
+│   │   │   │   ├── editLayout/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── DevicePickerModal.tsx
+│   │   │   │   │   │   ├── MediaPickerModal.tsx
+│   │   │   │   │   │   ├── PublishScheduleModal.tsx
+│   │   │   │   │   │   └── TVCanvas.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── schedules/
+│   │   │   │   └── page.tsx
+│   │   │   └── settings/
+│   │   │       ├── about/
 │   │   │       │   └── page.tsx
-│   │   │       └── page.tsx
+│   │   │       ├── billing/
+│   │   │       │   └── page.tsx
+│   │   │       ├── companyinformations/
+│   │   │       │   └── page.tsx
+│   │   │       ├── layout.tsx
+│   │   │       ├── logo/
+│   │   │       │   └── page.tsx
+│   │   │       ├── page.tsx
+│   │   │       ├── profile/
+│   │   │       │   └── page.tsx
+│   │   │       └── support/
+│   │   │           └── page.tsx
 │   │   ├── api/
 │   │   │   ├── [...slug]/
 │   │   │   │   └── route.ts
@@ -140,7 +163,8 @@ plaisoram_web/
 │   │       ├── toggle.tsx
 │   │       └── tooltip.tsx
 │   ├── hooks/
-│   │   └── use-mobile.ts
+│   │   ├── use-mobile.ts
+│   │   └── useDebounce.ts
 │   ├── lib/
 │   │   ├── api.ts
 │   │   ├── fetchClient.ts
@@ -206,7 +230,6 @@ Plaisoram_Server/
 │   │   ├── lexik_jwt_authentication.yaml
 │   │   ├── mailer.yaml
 │   │   ├── mercure.yaml
-│   │   ├── messenger.yaml
 │   │   ├── monolog.yaml
 │   │   ├── nelmio_cors.yaml
 │   │   ├── notifier.yaml
@@ -228,12 +251,16 @@ Plaisoram_Server/
 │   └── services.yaml
 ├── importmap.php
 ├── migrations/
-│   └── Version20260513163802.php
+│   ├── Version20260513163802.php
+│   ├── Version20260519171003.php
+│   └── Version20260520134632.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
 │   └── index.php
 ├── src/
+│   ├── Command/
+│   │   └── CleanupPlaylistsCommand.php
 │   ├── Controller/
 │   │   ├── .gitignore
 │   │   ├── DeviceController.php
@@ -241,6 +268,7 @@ Plaisoram_Server/
 │   │   ├── MediaFolderController.php
 │   │   ├── PlayerController.php
 │   │   ├── PlaylistController.php
+│   │   ├── ProfileController.php
 │   │   └── RegistrationController.php
 │   ├── Entity/
 │   │   ├── .gitignore

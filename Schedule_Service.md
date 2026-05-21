@@ -1,49 +1,56 @@
-# Scheduling Feature UI Implementation
+# Plaisoram Scheduling System Architecture
 
-This plan outlines the frontend UI implementation for the new Scheduling feature based on the provided mockup images. As requested, we will focus exclusively on the UI structure and interactions, ignoring backend server logic and device group notions for now.
+This document outlines the complete, end-to-end architecture and implementation details for the Scheduling and Publishing system in Plaisoram.
 
-## Proposed Changes
+## 1. Frontend Procedure (Next.js)
 
-We will implement two distinct UI components using existing libraries in your stack (`date-fns` for calendar logic and `react-day-picker` for date picking).
+The user interface strictly separates the concept of **saving** a layout from **scheduling/publishing** it.
 
-### 1. Publish Schedule Modal
+### A. Saving a Playlist (`/playlists/editLayout`)
+- The "Edit Layout" page is strictly for drafting and updating.
+- Clicking the **Save** button triggers either a `POST` (for new playlists) or `PUT` (for existing playlists) request to `/api/playlists`.
+- There is **no publish button** on the edit page.
 
-We will replace the existing direct-publish modal in the Playlist Editor with the new Schedule Publish Modal.
+### B. Scheduling & Publishing (`/playlists`)
+- The **Schedule & Publish** action is available on the main Playlists list page via a dedicated action button on each playlist card.
+- Clicking this opens the `PublishScheduleModal`.
+- **Validation**: 
+  - The modal enforces the selection of a valid target device.
+  - If "Custom" is selected, the user must pick a date and exact time (HH:mm). 
+  - Past dates are strictly forbidden by frontend validation.
+- **Execution**: 
+  - `Immediate`: Sends a request to `/api/devices/{id}/publish`.
+  - `Custom`: Sends a `POST` payload to `/api/schedules` containing the `playlist_id`, `device_id`, UTC `scheduled_at` string, and timezone.
 
-#### [NEW] `PublishScheduleModal.tsx`
-Location: `plaisoram_web/src/app/(dashboard)/playlists/editLayout/components/PublishScheduleModal.tsx`
-
-- A centered popup modal matching the "Save content & Publish to your device" design.
-- **Form Controls**:
-  - **Target Device**: A standard HTML `<select>` or Radix dropdown to pick the destination screen (replacing the "Device Group" notion per your instruction).
-  - **Publish Time**: Custom styled radio buttons for `Immediately` and `Custom`.
-  - **Date Picker**: When `Custom` is selected, an input field "Select date & time" will appear with a calendar icon. Clicking it will open a calendar popover (using your existing `react-day-picker` dependency).
-- **Actions**:
-  - `Back` button to cancel.
-  - `Publish` blue primary button to confirm. For now, this will trigger a success toast and close the modal without making a real API request.
-
-#### [MODIFY] `page.tsx` (Playlist Editor)
-Location: `plaisoram_web/src/app/(dashboard)/playlists/editLayout/page.tsx`
-- Replace the old `DevicePickerModal` component with the new `PublishScheduleModal`.
-- Wire up the "Save & Publish" button to open this new modal.
+### C. Calendar View (`/schedules`)
+- A full interactive calendar grid visualizes all upcoming schedules by fetching from `GET /api/schedules`.
 
 ---
 
-### 2. Full Schedules Calendar View
+## 2. Backend Server Logic (Symfony)
 
-We will implement a new dedicated page for the interactive Calendar.
+The backend handles the persistence, validation, and execution of schedules.
 
-#### [NEW] `page.tsx` (Schedules Page)
-Location: `plaisoram_web/src/app/(dashboard)/schedules/page.tsx`
+### A. Data Persistence (`PublishSchedule` Entity)
+- A Doctrine entity that links a `Device` and a `Playlist`.
+- Stores `scheduledAt` (UTC timestamp), `timezone`, and `status` (`pending`, `completed`, `failed`).
+- Optimized with an index on `[status, scheduled_at]` to prevent full table scans when the worker polls for due schedules.
 
-- **Header / Toolbar**:
-  - Breadcrumb: `Schedules | calendar`.
-  - Dropdown filter: `Default Group`.
-  - Navigation controls: `<` (previous), `>` (next), and `today` buttons.
-  - Title: Centered month string (e.g., `MARCH 2026`).
-  - View Toggles: `month`, `week`, `day` segmented control.
-- **Calendar Grid Layout**:
-  - A responsive 7-column CSS grid displaying the days of the week (`Sun`, `Mon`, `Tue`...).
-  - Dynamic generation of calendar cells using `date-fns` to fill the 5 or 6 rows needed for the selected month.
-  - Clean, border-separated white cell design matching the mockup precisely.
-  - Empty day cells ready for future schedule event blocks.
+### B. API Controllers
+- **`ScheduleController`**: 
+  - `POST /api/schedules`: Validates inputs. Enforces that `scheduled_at` cannot be in the past (allowing a 1-minute network buffer). Creates a `pending` schedule.
+  - `GET /api/schedules`: Retrieves all schedules for the user's workspace.
+
+### C. Execution Engine (Worker Process)
+- **Command**: `ProcessSchedulesCommand` (`app:process-schedules`)
+- This command is designed to be run on a Cron Job (e.g., every minute) or via a daemonized worker (like Symfony Messenger).
+- **Procedure**:
+  1. Queries the database for schedules where `status = 'pending'` and `scheduled_at <= NOW()`.
+  2. For each schedule, it updates the target `Device` entity to point to the new `currentPlaylist`.
+  3. Marks the schedule as `completed` to maintain an audit log.
+  4. Flushes changes to the database.
+
+### D. Real-time Screen Updates (Mercure)
+- Immediately after updating the database, the worker publishes a JSON update payload to the **Mercure Hub**.
+- The Android players are subscribed to their specific SSE channel (`/device/{id}/updates`).
+- Upon receiving the signal, the player immediately syncs its local storage and transitions to the new scheduled playlist without manual intervention.
