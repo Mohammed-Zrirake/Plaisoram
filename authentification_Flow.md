@@ -8,7 +8,7 @@ This document maps out the complete authentication lifecycle between the Plaisor
 sequenceDiagram
     autonumber
     actor User as User (Browser)
-    participant NextJS_Middleware as Proxy<br/>(src/proxy.ts)
+    participant NextJS_Middleware as Next.js Middleware<br/>(src/middleware.ts)
     participant NextJS_Page as Auth Page<br/>(login/page.tsx)
     participant NextJS_Client as Client Page<br/>(e.g. DevicesPage)
     participant NextJS_Action as Server Action<br/>(src/actions/auth.ts)
@@ -36,7 +36,7 @@ sequenceDiagram
     NextJS_Action-->>NextJS_Page: Returns { success: true }
     NextJS_Page->>User: router.push('/')
 
-    Note over User, Symfony_Protected: 3. Accessing Protected Pages (Proxy)
+    Note over User, Symfony_Protected: 3. Accessing Protected Pages (Middleware)
     User->>NextJS_Middleware: Requests private page (e.g. '/')
     NextJS_Middleware->>NextJS_Middleware: Checks for 'token' or 'refresh_token' cookie
     alt Has Cookies
@@ -70,7 +70,7 @@ sequenceDiagram
 ### Plaisoram Web (Next.js)
 - **`src/app/(auth)/login/page.tsx` & `src/app/(auth)/signup/page.tsx`**: The client-side UI where the user inputs their credentials. They invoke secure Server Actions instead of making direct HTTP requests to the backend.
 - **`src/actions/auth.ts`**: The Backend-For-Frontend (BFF) Server Actions. These run on the Node.js server, call the Symfony backend directly to authenticate, and set the strict `HttpOnly`, `Secure` session cookies.
-- **`src/proxy.ts`**: Next.js Proxy that intercepts requests to Next.js page routes, ensuring the user possesses an active authentication cookie before allowing them to access private dashboards.
+- **`src/middleware.ts`**: Next.js Middleware that intercepts requests to page routes, ensuring the user possesses an active authentication cookie before allowing them to access private dashboards. *(Ensure this file is correctly named and placed in `src/` for Next.js to detect it).*
 - **`src/app/api/logout/route.ts`**: API endpoint called by the client to physically delete the HttpOnly cookies when a session dies, ensuring a clean redirect.
 - **`src/lib/fetchClient.ts`**: Client-side fetch wrapper that intercepts 401 Unauthorized responses, calls `/api/logout`, and automatically redirects the user back to the login page to prevent broken UI states or infinite redirect loops.
 - **`src/app/api/[...slug]/route.ts`**: The Backend-For-Frontend (BFF) API Proxy. Intercepts all client-side calls. It is responsible for:

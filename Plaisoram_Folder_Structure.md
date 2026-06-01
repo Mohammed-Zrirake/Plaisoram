@@ -259,7 +259,7 @@ Plaisoram_Server/
 ├── public/
 │   ├── .htaccess
 │   └── index.php
-├── run-scheduler.bat
+├── run-worker.bat
 ├── src/
 │   ├── Command/
 │   │   ├── CleanupPlaylistsCommand.php

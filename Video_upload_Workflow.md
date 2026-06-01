@@ -25,19 +25,36 @@ Once the browser confirms the `PUT` request was successful, Next.js sends a ligh
 Symfony creates the `Media` entity in the database, associates it with the correct Workspace and Folder, and saves it. The dashboard then reloads the media grid.
 
 ## Important Note: CORS Configuration
-For Direct-to-S3 uploads to work, your DigitalOcean Spaces bucket **must** have CORS (Cross-Origin Resource Sharing) configured to allow `PUT` requests from your Next.js domain (e.g., `https://plaisoram-web.vercel.app` and `http://localhost:3000`). 
+For Direct-to-S3 uploads to work, your **Backblaze B2** bucket **must** have CORS (Cross-Origin Resource Sharing) configured to allow `PUT` requests from your Next.js domain (e.g., `https://plaisoram-web.vercel.app` and `http://localhost:3000`). 
 
 If CORS is not configured, the browser will block the direct upload in Step 2 with an `OPTIONS 403 Forbidden` error, and the user will see a network error. 
 
-### How to Configure CORS on DigitalOcean Spaces:
-Unlike other providers that require JSON, DigitalOcean allows you to configure this directly in their GUI:
-1. Log into your **DigitalOcean Dashboard**.
-2. Click on **Spaces Object Storage** on the left menu, and click on your specific Space.
-3. Click on the **Settings** tab at the top.
-4. Scroll down to **CORS Rules** and click **Edit** (or Add).
-5. Add a new CORS rule with these exact settings:
-   - **Origin:** `https://plaisoram-web.vercel.app` *(add a second one for `http://localhost:3000` for local testing)*
-   - **Allowed Methods:** Select **`PUT`**, **`POST`**, **`GET`**, **`DELETE`**, **`HEAD`**
-   - **Allowed Headers:** Type `*` (just an asterisk)
-   - **Max Age:** `3600`
-6. Click **Save Options**.
+### How to Configure CORS on Backblaze B2:
+You can configure CORS rules in Backblaze B2 by adding a custom CORS JSON rule in the B2 Web Console:
+1. Log into your **Backblaze Account**.
+2. Click on **Buckets** in the left menu.
+3. Find your bucket (`B2_BUCKET_NAME`) and click on **Bucket Settings**.
+4. Scroll down to the **CORS Rules** section and choose **Custom JSON**.
+5. Paste the following CORS configuration:
+   ```json
+   [
+     {
+       "corsRuleName": "Allow-Plaisoram-Uploads",
+       "allowedOrigins": [
+         "https://plaisoram-web.vercel.app",
+         "http://localhost:3000"
+       ],
+       "allowedMethods": [
+         "s3_get",
+         "s3_put",
+         "s3_post",
+         "s3_delete",
+         "s3_head"
+       ],
+       "allowedHeaders": ["*"],
+       "exposeHeaders": ["ETag"],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   ```
+6. Click **Save Changes**.

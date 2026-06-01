@@ -71,13 +71,14 @@ The Android TV app acts as the listener. It uses Kotlin to maintain an open HTTP
 *   **`app/src/main/java/com/sobrus/plaisoramplayer/presentation/player/PlayerViewModel.kt`**
     *   Maintains the active SSE connection while the signage is running.
     *   Parses incoming JSON payloads:
-        *   If `PlaylistUpdated`, it triggers the `SyncPlaylistUseCase` to download the new media.
+        *   If `PlaylistUpdated`, it triggers `SyncEngine.startImmediateSync()` to download and synchronize the new media.
         *   If `PowerCommand` or `RefreshCommand`, it executes the respective local Android functions to sleep the screen or reload the UI.
 
 ### C. The Web Dashboard (Subscriber)
 
 While the dashboard acts as the origin of commands (by calling Symfony APIs), it is also a *subscriber* to monitor fleet health.
-*   The Next.js app likely has an `EventSource` listening to `dashboard/updates` to dynamically update the online/offline green dots in the `devices` page without needing to manually refresh.
+*   **`src/app/(dashboard)/devices/page.tsx`**: Uses the browser's native `EventSource` listening to `${mercureUrl}?topic=dashboard/updates` to dynamically update the online/offline indicators for all devices in real-time without needing a manual page refresh.
+
 
 ## Summary
 

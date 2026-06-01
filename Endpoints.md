@@ -48,6 +48,8 @@ These are the core REST API endpoints served by the Symfony backend.
 ### **Scheduling (`/api/schedules`)**
 - `GET    /api/schedules` - Get all scheduled publications.
 - `POST   /api/schedules` - Create a new scheduled publication.
+- `DELETE /api/schedules/{id}` - Delete a scheduled publication.
+
 
 ### **User Profile (`/api/profile`)**
 - `GET    /api/profile` - Get current user profile details.
