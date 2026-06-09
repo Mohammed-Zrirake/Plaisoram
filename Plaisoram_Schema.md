@@ -83,10 +83,18 @@ erDiagram
         datetime updatedAt
     }
 
+    PLAYLIST_SECTION {
+        int id PK
+        int playlist_id FK
+        string name "nullable"
+        int durationSeconds
+        int position
+    }
+
     ZONE {
         int id PK
         string name
-        int playlist_id FK
+        int section_id FK
         float xPercent
         float yPercent
         float widthPercent
@@ -102,6 +110,21 @@ erDiagram
         int position
     }
 
+    PUBLISH_SCHEDULE {
+        int id PK
+        int workspace_id FK
+        int device_id FK "nullable"
+        int playlist_id FK
+        datetime scheduledAt
+        string status
+        string timezone "nullable"
+        string recurrenceRule "nullable"
+        string errorMessage "nullable"
+        datetime deletedAt "nullable"
+        datetime createdAt
+        datetime updatedAt
+    }
+
     %% Relationships
     WORKSPACE ||--o{ USER : "owns"
     WORKSPACE ||--o{ DEVICE : "contains"
@@ -110,10 +133,14 @@ erDiagram
     WORKSPACE ||--o{ MEDIA_FOLDER : "contains"
     
     MEDIA_FOLDER ||--o{ MEDIA : "contains"
-    PLAYLIST ||--o{ ZONE : "has"
+    PLAYLIST ||--o{ PLAYLIST_SECTION : "has"
+    PLAYLIST_SECTION ||--o{ ZONE : "has"
     ZONE ||--o{ PLAYLIST_MEDIA : "has"
     MEDIA ||--o{ PLAYLIST_MEDIA : "included in"
     MEDIA ||--o{ ZONE : "included in"
+    WORKSPACE ||--o{ PUBLISH_SCHEDULE : "has"
+    DEVICE ||--o{ PUBLISH_SCHEDULE : "has"
+    PLAYLIST ||--o{ PUBLISH_SCHEDULE : "has"
 ```
 
 ### DBML (Database Markup Language) Definition
@@ -192,10 +219,18 @@ Table playlist {
   updatedAt datetime
 }
 
+Table playlist_section {
+  id int [pk, increment]
+  playlist_id int [not null]
+  name varchar(255) [null]
+  durationSeconds int [default: 3600]
+  position int [default: 1]
+}
+
 Table zone {
   id int [pk, increment]
   name varchar(255)
-  playlist_id int [not null]
+  section_id int [not null]
   xPercent float
   yPercent float
   widthPercent float
@@ -211,6 +246,21 @@ Table playlist_media {
   position int
 }
 
+Table publish_schedule {
+  id int [pk, increment]
+  workspace_id int [not null]
+  device_id int [null]
+  playlist_id int [not null]
+  scheduledAt datetime [not null]
+  status varchar(50) [default: 'pending']
+  timezone varchar(100) [null]
+  recurrenceRule varchar(255) [null]
+  errorMessage text [null]
+  deletedAt datetime [null]
+  createdAt datetime
+  updatedAt datetime
+}
+
 // Relationships
 Ref: user.workspace_id > workspace.id
 Ref: device.workspace_id > workspace.id
@@ -218,10 +268,14 @@ Ref: media_folder.workspace_id > workspace.id
 Ref: media.workspace_id > workspace.id
 Ref: media.folder_id > media_folder.id
 Ref: playlist.workspace_id > workspace.id
-Ref: zone.playlist_id > playlist.id
+Ref: playlist_section.playlist_id > playlist.id
+Ref: zone.section_id > playlist_section.id
 Ref: zone.mediaId > media.id
 Ref: playlist_media.zoneId > zone.id
 Ref: playlist_media.mediaId > media.id
+Ref: publish_schedule.workspace_id > workspace.id
+Ref: publish_schedule.device_id > device.id
+Ref: publish_schedule.playlist_id > playlist.id
 ```
 
 ## 2. Digital Player App Database Schema
@@ -253,22 +307,6 @@ erDiagram
         int displayOrder
         string downloadStatus
     }
-
-    weather {
-        string cityName PK
-        string times
-        string temperatures
-        string weatherCodes
-        long lastUpdated
-        string windSpeeds
-    }
-
-    news {
-        string url PK
-        string title
-        string source
-        long publishedAt
-    }
 ```
 
 ### DBML (Database Markup Language) Definition
@@ -294,21 +332,5 @@ Table playlist_items {
   durationSeconds int
   displayOrder int
   downloadStatus varchar(50)
-}
-
-Table weather {
-  cityName varchar(255) [pk]
-  times text
-  temperatures text
-  weatherCodes text
-  lastUpdated bigint
-  windSpeeds text
-}
-
-Table news {
-  url varchar(255) [pk]
-  title varchar(255)
-  source varchar(255)
-  publishedAt bigint
 }
 ```
