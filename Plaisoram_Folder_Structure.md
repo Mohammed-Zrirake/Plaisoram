@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-05-21 13:38:31
+> **Generated:** 2026-06-24 16:36:20
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -24,6 +24,9 @@ plaisoram_web/
 ├── biome.json
 ├── components.json
 ├── global.css
+├── messages/
+│   ├── en.json
+│   └── fr.json
 ├── next-env.d.ts
 ├── next.config.ts
 ├── package.json
@@ -35,12 +38,14 @@ plaisoram_web/
 │   ├── globe.svg
 │   ├── images/
 │   │   └── Theme.svg
+│   ├── logo.svg
 │   ├── next.svg
 │   ├── vercel.svg
 │   └── window.svg
 ├── src/
 │   ├── actions/
 │   │   ├── auth.ts
+│   │   ├── locale.ts
 │   │   └── profile.ts
 │   ├── app/
 │   │   ├── (auth)/
@@ -57,11 +62,14 @@ plaisoram_web/
 │   │   │   ├── devices/
 │   │   │   │   ├── add/
 │   │   │   │   │   └── page.tsx
+│   │   │   │   ├── components/
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
+│   │   │   ├── loading.tsx
 │   │   │   ├── media/
 │   │   │   │   ├── components/
-│   │   │   │   │   └── FolderModal.tsx
+│   │   │   │   │   ├── FolderModal.tsx
+│   │   │   │   │   └── PublishMediaModal.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── playlists/
@@ -69,7 +77,6 @@ plaisoram_web/
 │   │   │   │   │   ├── components/
 │   │   │   │   │   │   ├── DevicePickerModal.tsx
 │   │   │   │   │   │   ├── MediaPickerModal.tsx
-│   │   │   │   │   │   ├── PublishScheduleModal.tsx
 │   │   │   │   │   │   └── TVCanvas.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
@@ -100,11 +107,15 @@ plaisoram_web/
 │   │   ├── Dashboard/
 │   │   │   ├── ActionCard.tsx
 │   │   │   ├── GettingStartedWidget.tsx
+│   │   │   ├── OnboardingTour.tsx
+│   │   │   ├── PublishScheduleModal.tsx
 │   │   │   └── UsageStatsWidget.tsx
 │   │   ├── Layout/
 │   │   │   └── Dashboard/
+│   │   │       ├── Footer.tsx
 │   │   │       ├── Sidebar.tsx
 │   │   │       └── TopHeader.tsx
+│   │   ├── Providers.tsx
 │   │   └── ui/
 │   │       ├── accordion.tsx
 │   │       ├── alert-dialog.tsx
@@ -123,6 +134,7 @@ plaisoram_web/
 │   │       ├── collapsible.tsx
 │   │       ├── combobox.tsx
 │   │       ├── command.tsx
+│   │       ├── confirm-dialog.tsx
 │   │       ├── context-menu.tsx
 │   │       ├── dialog.tsx
 │   │       ├── direction.tsx
@@ -164,7 +176,14 @@ plaisoram_web/
 │   │       └── tooltip.tsx
 │   ├── hooks/
 │   │   ├── use-mobile.ts
-│   │   └── useDebounce.ts
+│   │   ├── useDashboard.ts
+│   │   ├── useDebounce.ts
+│   │   ├── useDevices.ts
+│   │   ├── useMedia.ts
+│   │   └── usePlaylists.ts
+│   ├── i18n/
+│   │   ├── request.ts
+│   │   └── routing.ts
 │   ├── lib/
 │   │   ├── api.ts
 │   │   ├── fetchClient.ts
@@ -176,7 +195,8 @@ plaisoram_web/
 │   │   └── globals.css
 │   └── utils/
 ├── tools.md
-└── tsconfig.json
+├── tsconfig.json
+└── tsconfig.tsbuildinfo
 ```
 
 ---
@@ -195,18 +215,10 @@ Plaisoram_Server/
 │       └── release.yml
 ├── .gitignore
 ├── .releaserc.json
-├── assets/
-│   ├── app.js
-│   ├── controllers/
-│   │   ├── csrf_protection_controller.js
-│   │   └── hello_controller.js
-│   ├── controllers.json
-│   ├── stimulus_bootstrap.js
-│   └── styles/
-│       └── app.css
 ├── bin/
 │   ├── console
-│   └── phpunit
+│   ├── phpunit
+│   └── test_delete.php
 ├── compose.override.yaml
 ├── compose.yaml
 ├── composer.json
@@ -218,7 +230,6 @@ Plaisoram_Server/
 │   │   ├── private.pem
 │   │   └── public.pem
 │   ├── packages/
-│   │   ├── asset_mapper.yaml
 │   │   ├── cache.yaml
 │   │   ├── csrf.yaml
 │   │   ├── debug.yaml
@@ -230,6 +241,7 @@ Plaisoram_Server/
 │   │   ├── lexik_jwt_authentication.yaml
 │   │   ├── mailer.yaml
 │   │   ├── mercure.yaml
+│   │   ├── messenger.yaml
 │   │   ├── monolog.yaml
 │   │   ├── nelmio_cors.yaml
 │   │   ├── notifier.yaml
@@ -238,7 +250,6 @@ Plaisoram_Server/
 │   │   ├── security.yaml
 │   │   ├── translation.yaml
 │   │   ├── twig.yaml
-│   │   ├── ux_turbo.yaml
 │   │   ├── validator.yaml
 │   │   └── web_profiler.yaml
 │   ├── preload.php
@@ -249,56 +260,88 @@ Plaisoram_Server/
 │   │   └── web_profiler.yaml
 │   ├── routes.yaml
 │   └── services.yaml
-├── importmap.php
 ├── migrations/
 │   ├── Version20260513163802.php
 │   ├── Version20260519171003.php
 │   ├── Version20260520134632.php
-│   └── Version20260520160213.php
+│   ├── Version20260520160213.php
+│   ├── Version20260525140800.php
+│   ├── Version20260525144200.php
+│   └── Version20260526113722.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
 │   └── index.php
 ├── run-worker.bat
 ├── src/
-│   ├── Command/
-│   │   ├── CleanupPlaylistsCommand.php
-│   │   └── ProcessSchedulesCommand.php
-│   ├── Controller/
-│   │   ├── .gitignore
-│   │   ├── DeviceController.php
-│   │   ├── MediaController.php
-│   │   ├── MediaFolderController.php
-│   │   ├── PlayerController.php
-│   │   ├── PlaylistController.php
-│   │   ├── ProfileController.php
-│   │   ├── RegistrationController.php
-│   │   └── ScheduleController.php
-│   ├── Entity/
-│   │   ├── .gitignore
-│   │   ├── Device.php
-│   │   ├── Media.php
-│   │   ├── MediaFolder.php
-│   │   ├── Playlist.php
-│   │   ├── PlaylistMedia.php
-│   │   ├── PublishSchedule.php
-│   │   ├── RefreshToken.php
-│   │   ├── User.php
-│   │   ├── Workspace.php
-│   │   └── Zone.php
-│   ├── EventListener/
-│   │   └── DeviceStatusListener.php
 │   ├── Kernel.php
-│   └── Repository/
-│       ├── .gitignore
-│       └── UserRepository.php
+│   ├── Modules/
+│   │   ├── Device/
+│   │   │   ├── Controller/
+│   │   │   │   ├── DeviceController.php
+│   │   │   │   └── PlayerController.php
+│   │   │   ├── Entity/
+│   │   │   │   └── Device.php
+│   │   │   ├── EventListener/
+│   │   │   │   └── DeviceStatusListener.php
+│   │   │   └── Service/
+│   │   │       └── DeviceMapper.php
+│   │   ├── Media/
+│   │   │   ├── Controller/
+│   │   │   │   ├── MediaController.php
+│   │   │   │   └── MediaFolderController.php
+│   │   │   └── Entity/
+│   │   │       ├── Media.php
+│   │   │       └── MediaFolder.php
+│   │   ├── Playlist/
+│   │   │   ├── Command/
+│   │   │   │   └── CleanupPlaylistsCommand.php
+│   │   │   ├── Controller/
+│   │   │   │   └── PlaylistController.php
+│   │   │   ├── Entity/
+│   │   │   │   ├── Playlist.php
+│   │   │   │   ├── PlaylistMedia.php
+│   │   │   │   ├── PlaylistSection.php
+│   │   │   │   └── Zone.php
+│   │   │   ├── Message/
+│   │   │   │   └── PublishPlaylistMessage.php
+│   │   │   ├── MessageHandler/
+│   │   │   │   └── PublishPlaylistMessageHandler.php
+│   │   │   └── Service/
+│   │   │       └── PlaylistManager.php
+│   │   ├── Schedule/
+│   │   │   ├── Controller/
+│   │   │   │   └── ScheduleController.php
+│   │   │   └── Entity/
+│   │   │       └── PublishSchedule.php
+│   │   └── User/
+│   │       ├── Controller/
+│   │       │   ├── ProfileController.php
+│   │       │   └── RegistrationController.php
+│   │       ├── Entity/
+│   │       │   ├── RefreshToken.php
+│   │       │   ├── User.php
+│   │       │   └── Workspace.php
+│   │       └── Repository/
+│   │           └── UserRepository.php
+│   └── Shared/
+│       ├── Domain/
+│       │   └── .gitkeep
+│       ├── Exception/
+│       │   ├── .gitkeep
+│       │   ├── DomainException.php
+│       │   └── Playlist/
+│       │       ├── CannotDeleteDefaultPlaylistException.php
+│       │       ├── DuplicatePlaylistNameException.php
+│       │       └── ReservedNameException.php
+│       └── Infrastructure/
+│           └── .gitkeep
 ├── symfony.lock
-├── templates/
-│   └── base.html.twig
 ├── tests/
 │   └── bootstrap.php
 └── translations/
-    └── .gitignore
+    ├── .gitignore
+    └── messages.fr.yaml
 ```
 
 ---
@@ -308,42 +351,6 @@ Plaisoram_Server/
 ```
 Plaisoram_Player/
 ├── .gitignore
-├── Android/
-│   ├── Architecture/
-│   │   ├── Android App Composition.md
-│   │   ├── Common architectural principles.md
-│   │   ├── Data_Layer/
-│   │   │   ├── Build an offline-first app/
-│   │   │   │   ├── Conflict resolution.md
-│   │   │   │   ├── Desing an offline-first app.md
-│   │   │   │   ├── Read_Write.md
-│   │   │   │   ├── Synchronization and conflict resolution.md
-│   │   │   │   └── model data in an offline-first app.md
-│   │   │   ├── Common Tasks.md
-│   │   │   ├── Data Layer architecture.md
-│   │   │   ├── Exposing API s and Naming Conventions.md
-│   │   │   ├── Multiple Levels of repositories and Naming Conventions.md
-│   │   │   ├── Represent business models_Types of data operations_Expose errors.md
-│   │   │   └── SOT _ Threading and Lifecycle.md
-│   │   ├── Domain_Layer/
-│   │   │   ├── Domain layer.md
-│   │   │   └── Lifecycle Threading and Common Tasks.md
-│   │   ├── Manage dependencies between components And General best practices.md
-│   │   ├── Recommendations for Android architecture.md
-│   │   ├── Recommended app architecture.md
-│   │   └── UI_Layer/
-│   │       ├── Consume UI State.md
-│   │       ├── Expose UI State.md
-│   │       ├── Other concerns in UI_Layer.md
-│   │       ├── UI State Definition.md
-│   │       ├── UI layer architecture.md
-│   │       └── Unidirectional Data Flow.md
-│   └── Fundamentals/
-│       ├── Activate components.md
-│       ├── Android App Components.md
-│       ├── Android Apps Fundamentals.md
-│       ├── AndroidManifest.xml.md
-│       └── App Startup.md
 ├── README.md
 ├── app/
 │   ├── .gitignore
@@ -352,6 +359,8 @@ Plaisoram_Player/
 │   └── src/
 │       └── main/
 │           ├── AndroidManifest.xml
+│           ├── assets/
+│           │   └── logo.svg
 │           ├── java/
 │           │   └── com/
 │           │       └── sobrus/
@@ -368,38 +377,27 @@ Plaisoram_Player/
 │           │               │   │   ├── Converters.kt
 │           │               │   │   ├── dao/
 │           │               │   │   │   ├── DeviceConfigDao.kt
-│           │               │   │   │   ├── NewsDao.kt
-│           │               │   │   │   ├── PlaylistItemDao.kt
-│           │               │   │   │   └── WeatherDao.kt
+│           │               │   │   │   └── PlaylistItemDao.kt
 │           │               │   │   └── entity/
 │           │               │   │       ├── DeviceConfigEntity.kt
-│           │               │   │       ├── NewsEntity.kt
-│           │               │   │       ├── PlaylistItemEntity.kt
-│           │               │   │       └── WeatherEntity.kt
+│           │               │   │       └── PlaylistItemEntity.kt
 │           │               │   ├── remote/
-│           │               │   │   ├── NewsApi.kt
 │           │               │   │   ├── PlaisoramApi.kt
-│           │               │   │   ├── WeatherApi.kt
 │           │               │   │   └── dto/
 │           │               │   │       ├── InitDeviceRequestDto.kt
 │           │               │   │       ├── InitDeviceResponseDto.kt
 │           │               │   │       ├── PairingResponseDto.kt
 │           │               │   │       ├── PlaylistItemDto.kt
-│           │               │   │       ├── PlaylistLayoutDto.kt
-│           │               │   │       └── WeatherDto.kt
+│           │               │   │       └── PlaylistLayoutDto.kt
 │           │               │   ├── repository/
 │           │               │   │   ├── DeviceRepositoryImpl.kt
 │           │               │   │   ├── MediaRepositoryImpl.kt
-│           │               │   │   ├── NewsRepositoryImpl.kt
-│           │               │   │   ├── PlaylistRepositoryImpl.kt
-│           │               │   │   └── WeatherRepositoryImpl.kt
+│           │               │   │   └── PlaylistRepositoryImpl.kt
 │           │               │   ├── sync/
 │           │               │   │   ├── SyncEngineImpl.kt
 │           │               │   │   └── SyncWorker.kt
 │           │               │   └── worker/
-│           │               │       ├── DownloadWorker.kt
-│           │               │       ├── NewsSyncWorker.kt
-│           │               │       └── WeatherSyncWorker.kt
+│           │               │       └── DownloadWorker.kt
 │           │               ├── di/
 │           │               │   ├── DatabaseModule.kt
 │           │               │   ├── NetworkModule.kt
@@ -408,16 +406,12 @@ Plaisoram_Player/
 │           │               ├── domain/
 │           │               │   ├── model/
 │           │               │   │   ├── DeviceConfig.kt
-│           │               │   │   ├── NewsArticle.kt
 │           │               │   │   ├── PlaylistItem.kt
-│           │               │   │   ├── SyncStatus.kt
-│           │               │   │   └── WeatherData.kt
+│           │               │   │   └── SyncStatus.kt
 │           │               │   ├── repository/
 │           │               │   │   ├── DeviceRepository.kt
 │           │               │   │   ├── MediaRepository.kt
-│           │               │   │   ├── NewsRepository.kt
-│           │               │   │   ├── PlaylistRepository.kt
-│           │               │   │   └── WeatherRepository.kt
+│           │               │   │   └── PlaylistRepository.kt
 │           │               │   ├── sync/
 │           │               │   │   └── SyncEngine.kt
 │           │               │   └── usecase/
