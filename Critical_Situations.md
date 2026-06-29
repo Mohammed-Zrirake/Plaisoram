@@ -44,9 +44,14 @@ The authentication architecture utilizes a highly secure Backend-For-Frontend (B
 3. **Hardware Fingerprint Exponential Backoff:** A custom `ExponentialRateLimiter` service tracks the Android TV's `androidId` (`Settings.Secure.ANDROID_ID`) and exponentially delays subsequent initialization attempts (e.g., $3^{attempts}$ seconds), locking out spamming devices for hours. The `androidId` is also permanently saved to the `Device` entity for tracking.
 
 ### Heartbeat (Process 4)
-- **Database Write Storms:** Every heartbeat writes `isOnline` and `lastSeen` directly to the relational database. For thousands of devices pinging every 30s, this will crush the database.
-- **Robust Alternative:** Write heartbeats to a fast key-value store (like Redis) with a TTL. A separate, lower-frequency background worker can bulk-update the SQL database and publish aggregate status changes to Mercure.
-- **Dead-man switch:** Offline detection needs a scheduler that periodically scans for devices whose Redis TTL has expired, otherwise a crashed player will never be marked offline.
+- ~~**Database Write Storms:** Every heartbeat writes `isOnline` and `lastSeen` directly to the relational database. For thousands of devices pinging every 30s, this will crush the database.~~ [x] Handled
+- ~~**Robust Alternative:** Write heartbeats to a fast key-value store (like Redis) with a TTL. A separate, lower-frequency background worker can bulk-update the SQL database and publish aggregate status changes to Mercure.~~ [x] Handled (Replaced by 3-Phase Ping)
+
+**Implemented Solution (3-Phase Ping-Pong Architecture):**
+To support Serverless Databases (e.g., Neon DB) which charge by compute hour, the continuous heartbeat has been completely eliminated in favor of a zero-CPU event-driven architecture:
+1. **Graceful Shutdown (Zero CPU):** The Android TV maintains a silent SSE connection to Mercure. It only fires an HTTP `/status` update when it first boots up or when the app is gracefully shut down. 
+2. **Hourly Batch Ping:** To catch ungraceful shutdowns (e.g., power outages) and generate historical uptime analytics, a Symfony Command (`app:device:batch-ping`) runs once per hour. It pushes a global `{"action": "ping"}` event via Mercure to all online devices. The devices instantly reply via HTTP. The server performs a single bulk update and then goes back to sleep for 59 minutes.
+3. **Just-In-Time Ping:** When a user schedules a playlist on the dashboard, the backend instantly issues a targeted Mercure Ping to the specific TV to verify its real-time presence before finalizing the schedule.
 
 ---
 
