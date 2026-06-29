@@ -48,10 +48,23 @@ The authentication architecture utilizes a highly secure Backend-For-Frontend (B
 - ~~**Robust Alternative:** Write heartbeats to a fast key-value store (like Redis) with a TTL. A separate, lower-frequency background worker can bulk-update the SQL database and publish aggregate status changes to Mercure.~~ [x] Handled (Replaced by 3-Phase Ping)
 
 **Implemented Solution (3-Phase Ping-Pong Architecture):**
-To support Serverless Databases (e.g., Neon DB) which charge by compute hour, the continuous heartbeat has been completely eliminated in favor of a zero-CPU event-driven architecture:
-1. **Graceful Shutdown (Zero CPU):** The Android TV maintains a silent SSE connection to Mercure. It only fires an HTTP `/status` update when it first boots up or when the app is gracefully shut down. 
-2. **Hourly Batch Ping:** To catch ungraceful shutdowns (e.g., power outages) and generate historical uptime analytics, a Symfony Command (`app:device:batch-ping`) runs once per hour. It pushes a global `{"action": "ping"}` event via Mercure to all online devices. The devices instantly reply via HTTP. The server performs a single bulk update and then goes back to sleep for 59 minutes.
-3. **Just-In-Time Ping:** When a user schedules a playlist on the dashboard, the backend instantly issues a targeted Mercure Ping to the specific TV to verify its real-time presence before finalizing the schedule.
+To support Serverless Databases (e.g., Neon DB) which charge by compute hour, the continuous heartbeat has been completely eliminated in favor of a highly scalable, zero-CPU event-driven architecture. The following critical architectural choices were made to support this:
+
+1. **Graceful Shutdown (Zero CPU Baseline):** 
+   - **Architectural Choice:** The Android Player completely eliminates background polling loops. It maintains a silent, passive SSE connection to the Mercure Hub (`device/{id}/updates` and `device/global/updates`). 
+   - **Mechanism:** The player only ever fires an HTTP POST to the `/status` API during two absolute lifecycle events: when the app first boots up, and when it is explicitly destroyed (`onCleared()` in Android's ViewModel). This guarantees 0 database writes while the TV is running normally.
+
+2. **Hourly Batch Ping (Zero Memory / Bulk DQL Strategy):**
+   - **Architectural Choice:** To catch ungraceful shutdowns (power outages) without triggering N+1 database queries, the system uses a single bulk operation.
+   - **Mechanism:** A Symfony Command (`app:device:batch-ping`), prioritized via the `scheduler_default` queue, runs once per hour. Instead of looping through devices, it pushes a single global `{"action": "ping"}` payload to the `device/global/updates` Mercure topic. The TVs instantly reply, updating a dedicated `lastPingAt` column.
+   - **Scaling Trick:** After the threshold passes, the backend executes a raw Bulk DQL `UPDATE` query to mark sleeping TVs offline in a fraction of a second, completely bypassing PHP memory and avoiding ORM hydration overhead.
+
+3. **Just-In-Time Ping & Advanced Scheduling Rules:**
+   - **Architectural Choice:** When a user schedules a playlist, the system cannot afford to wait synchronously for a TV to reply to a ping. Instead, it uses a multi-layered asynchronous verification system.
+   - **Instant Warning:** The `ScheduleController` checks the database instantly and returns a `warning` in the JSON response if the TV is offline, allowing the frontend to show an immediate popup, while still successfully persisting the schedule.
+   - **Targeted Nudge:** The backend immediately issues a targeted Mercure ping to the specific TV to nudge it awake just in case it is online but dormant.
+   - **1-Hour Delay Verification:** The backend dynamically dispatches a `VerifyDeviceStatusMessage` into the `async` Messenger queue, delayed to exactly 1 hour before the scheduled launch time. If the TV is still offline when this job runs, it fires a `ScheduleWarning` Mercure event to the dashboard UI.
+   - **The "Missed" State:** If the actual launch time arrives and the TV remains unreachable, the schedule status gracefully transitions to `missed` and the message is safely consumed, preventing the database queue from clogging.
 
 ---
 
