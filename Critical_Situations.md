@@ -9,14 +9,39 @@ This document outlines the critical vulnerabilities, bottlenecks, and edge cases
 - **No email verification:** Registrations should require a confirmation link before the account is usable. Otherwise, bots can pollute the database with spam Workspaces and devices.
 
 ### Authentication (Process 2)
-- **Token storage in LocalStorage:** This is an XSS vector. Use HttpOnly, Secure cookies with `SameSite=Strict` for the JWT.
-- **Missing Refresh Mechanism:** Maintain a short-lived access token + refresh token pattern. If the token expires mid-session, the dashboard currently breaks.
-- **Brute-force protection:** The `login_check` endpoint needs exponential backoff or account locking after N failed attempts.
+- ~~**Token storage in LocalStorage:** This is an XSS vector. Use HttpOnly, Secure cookies with `SameSite=Strict` for the JWT.~~ [x] Handled
+- ~~**Missing Refresh Mechanism:** Maintain a short-lived access token + refresh token pattern. If the token expires mid-session, the dashboard currently breaks.~~ [x] Handled
+- ~~**Brute-force protection:** The `login_check` endpoint needs exponential backoff or account locking after N failed attempts.~~ [x] Handled
+
+**Implemented Solution (Next.js Backend-For-Frontend Pattern):**
+The authentication architecture utilizes a highly secure Backend-For-Frontend (BFF) pattern that shields the browser from accessing tokens directly.
+
+**1. Login & Token Issuance:**
+- The user logs in via the Next.js Server Action (`plaisoram_web/src/actions/auth.ts`). 
+- This Server Action sends a backend request to Symfony's `POST /api/login_check`.
+- Symfony validates the credentials. Brute-force attacks are mitigated natively by Symfony's `login_throttling` (configured in `Plaisoram_Server/config/packages/security.yaml` with max 5 attempts).
+- Symfony returns a JSON payload containing the short-lived JWT and a long-lived Refresh Token.
+- **Security Measure:** The Next.js Server Action converts these JSON tokens into `httpOnly`, `secure`, and `SameSite=Strict` cookies before sending the response to the user's browser. Client-side JavaScript NEVER touches the tokens, completely neutralizing XSS attacks.
+
+**2. Transparent API Proxying:**
+- When the Next.js frontend needs to fetch data, it hits its own proxy route (`plaisoram_web/src/app/api/[...slug]/route.ts`).
+- This Next.js API route reads the `httpOnly` cookie, attaches it as an `Authorization: Bearer <token>` header, and forwards the request securely to Symfony.
+
+**3. Proactive Token Refresh:**
+- Every page request is intercepted by the Next.js Middleware (`plaisoram_web/src/proxy.ts`).
+- The middleware decodes the JWT and checks its expiration timestamp. 
+- If the token is within 30 seconds of expiring, the middleware pauses the user's request, proactively hits Symfony's `POST /api/token/refresh` (powered by `gesdinet/jwt-refresh-token-bundle`), and retrieves a new set of tokens.
+- **Security Measure:** The middleware seamlessly overwrites the browser's `httpOnly` cookies with the new tokens and allows the user's original request to continue. This ensures the user's session never breaks unexpectedly without exposing refresh mechanics to the browser.
 
 ### Device Pairing (Process 3)
-- **TTL for 6-digit codes:** The code is a critical resource. The `initDevice` call should store an `expiresAt` (e.g., 5 minutes) and the code must be strictly single-use.
-- **Rate-limiting:** Rate-limit `initDevice` per IP or device fingerprint to prevent attackers from exhausting the pairing-code space and creating thousands of pending devices.
-- **Replay Attacks:** The confirmation step `POST /api/devices/{code}/pair` must invalidate the code immediately after successful pairing to prevent replays if the player crashes and retries.
+- ~~**TTL for 6-digit codes:** The code is a critical resource. The `initDevice` call should store an `expiresAt` (e.g., 5 minutes) and the code must be strictly single-use.~~ [x] Handled
+- ~~**Rate-limiting:** Rate-limit `initDevice` per IP or device fingerprint to prevent attackers from exhausting the pairing-code space and creating thousands of pending devices.~~ [x] Handled
+- ~~**Replay Attacks:** The confirmation step `POST /api/devices/{code}/pair` must invalidate the code immediately after successful pairing to prevent replays if the player crashes and retries.~~ [x] Handled
+
+**Implemented Solution (Multi-Layered Architecture):**
+1. **TTL and Replay Prevention:** `initDevice` assigns a strict 5-minute expiration to all pairing codes. Upon successful pairing, the code is immediately nullified in the database (`setPairingCode(null)`), making replay attacks impossible. Expired codes trigger a `410 Gone` response prompting the TV to reboot.
+2. **Global Panic Switch:** A sliding-window rate limiter is implemented at the controller level capping global pairing requests to 50 per minute to protect the database against mass botnet Write Storms.
+3. **Hardware Fingerprint Exponential Backoff:** A custom `ExponentialRateLimiter` service tracks the Android TV's `androidId` (`Settings.Secure.ANDROID_ID`) and exponentially delays subsequent initialization attempts (e.g., $3^{attempts}$ seconds), locking out spamming devices for hours. The `androidId` is also permanently saved to the `Device` entity for tracking.
 
 ### Heartbeat (Process 4)
 - **Database Write Storms:** Every heartbeat writes `isOnline` and `lastSeen` directly to the relational database. For thousands of devices pinging every 30s, this will crush the database.
