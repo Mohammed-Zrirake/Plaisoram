@@ -103,12 +103,7 @@ erDiagram
         int mediaId FK "nullable"
     }
 
-    PLAYLIST_MEDIA {
-        int id PK
-        int zoneId FK
-        int mediaId FK
-        int position
-    }
+
 
     PUBLISH_SCHEDULE {
         int id PK
@@ -123,6 +118,8 @@ erDiagram
         datetime deletedAt "nullable"
         datetime createdAt
         datetime updatedAt
+        int publishMessageId "nullable"
+        int verifyMessageId "nullable"
     }
 
     %% Relationships
@@ -135,8 +132,6 @@ erDiagram
     MEDIA_FOLDER ||--o{ MEDIA : "contains"
     PLAYLIST ||--o{ PLAYLIST_SECTION : "has"
     PLAYLIST_SECTION ||--o{ ZONE : "has"
-    ZONE ||--o{ PLAYLIST_MEDIA : "has"
-    MEDIA ||--o{ PLAYLIST_MEDIA : "included in"
     MEDIA ||--o{ ZONE : "included in"
     WORKSPACE ||--o{ PUBLISH_SCHEDULE : "has"
     DEVICE ||--o{ PUBLISH_SCHEDULE : "has"
@@ -239,12 +234,7 @@ Table zone {
   mediaId int [null]
 }
 
-Table playlist_media {
-  id int [pk, increment]
-  zoneId int
-  mediaId int
-  position int
-}
+
 
 Table publish_schedule {
   id int [pk, increment]
@@ -259,6 +249,8 @@ Table publish_schedule {
   deletedAt datetime [null]
   createdAt datetime
   updatedAt datetime
+  publishMessageId int [null]
+  verifyMessageId int [null]
 }
 
 // Relationships
@@ -271,8 +263,6 @@ Ref: playlist.workspace_id > workspace.id
 Ref: playlist_section.playlist_id > playlist.id
 Ref: zone.section_id > playlist_section.id
 Ref: zone.mediaId > media.id
-Ref: playlist_media.zoneId > zone.id
-Ref: playlist_media.mediaId > media.id
 Ref: publish_schedule.workspace_id > workspace.id
 Ref: publish_schedule.device_id > device.id
 Ref: publish_schedule.playlist_id > playlist.id
