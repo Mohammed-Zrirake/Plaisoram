@@ -15,7 +15,6 @@ Endpoints are explicitly marked as **[🌐 Public]** (no authentication required
 - `POST   /api/devices/init` - Initialize a new device connection. **[🌐 Public]**
 - `POST   /api/devices/pair` - Pair a device using a code. **[🌐 Public]**
 - `GET    /api/devices/{code}/pair` - Check pairing status via code. **[🌐 Public]**
-- `POST   /api/devices/{id}/heartbeat` - Send a heartbeat signal from the player. **[🌐 Public]**
 - `GET    /api/devices/{id}/status` - Get the current connection status of a device. **[🌐 Public]**
 - `POST   /api/devices/{id}/publish` - Publish a playlist to a device. **[🌐 Public]**
 - `PATCH  /api/devices/{id}` - Update a device's settings (e.g., name, resolution). **[🌐 Public]**
@@ -103,4 +102,3 @@ The Android digital signage player acts as a client. It primarily communicates w
 - `POST   /api/devices/init` - Used to register the device upon first boot and retrieve the pairing code. **[🌐 Public]**
 - `GET    /api/devices/{id}/status` - Used to verify the connection status during the pairing flow. **[🌐 Public]**
 - `GET    /api/devices/{id}/playlist` - Used to fetch the active playlist layout, zones, and media URLs to download and play. **[🌐 Public]**
-- `POST   /api/devices/{id}/heartbeat` - Background service ping to notify the server that the device is online. **[🌐 Public]**
