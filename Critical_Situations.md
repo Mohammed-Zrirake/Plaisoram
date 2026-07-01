@@ -19,8 +19,8 @@ The authentication architecture utilizes a highly secure Backend-For-Frontend (B
 **1. Login & Token Issuance:**
 - The user logs in via the Next.js Server Action (`plaisoram_web/src/actions/auth.ts`). 
 - This Server Action sends a backend request to Symfony's `POST /api/login_check`.
-- Symfony validates the credentials. Brute-force attacks are mitigated natively by Symfony's `login_throttling` (configured in `Plaisoram_Server/config/packages/security.yaml` with max 5 attempts).
-- Symfony returns a JSON payload containing the short-lived JWT and a long-lived Refresh Token.
+- **Database-Backed Exponential Rate Limiting:** Because DigitalOcean App Platform uses an ephemeral filesystem for cache, Symfony's native `login_throttling` was completely removed. Instead, a custom `LoginRateLimiterSubscriber` intercepts the login request before password validation. It calculates a SHA-256 hash of the `IP + Email` and tracks attempts in a centralized PostgreSQL `rate_limit_attempt` table using strict Pessimistic Locking. This applies a brutal exponential backoff (3s, 9s, 13mins, etc.) to block brute-force attacks globally across all containers. A successful login immediately resets the penalty to 0.
+- Symfony validates the credentials and returns a JSON payload containing the short-lived JWT and a long-lived Refresh Token.
 - **Security Measure:** The Next.js Server Action converts these JSON tokens into `httpOnly`, `secure`, and `SameSite=Strict` cookies before sending the response to the user's browser. Client-side JavaScript NEVER touches the tokens, completely neutralizing XSS attacks.
 
 **2. Transparent API Proxying:**
@@ -40,7 +40,7 @@ The authentication architecture utilizes a highly secure Backend-For-Frontend (B
 
 **Implemented Solution (Multi-Layered Architecture):**
 1. **TTL and Replay Prevention:** `initDevice` assigns a strict 5-minute expiration to all pairing codes. Upon successful pairing, the code is immediately nullified in the database (`setPairingCode(null)`), making replay attacks impossible. Expired codes trigger a `410 Gone` response prompting the TV to reboot.
-2. **Global Panic Switch:** A sliding-window rate limiter is implemented at the controller level capping global pairing requests to 50 per minute to protect the database against mass botnet Write Storms.
+2. **Global Panic Switch (Database-Backed Fixed Window):** To protect the database against mass botnet Write Storms without relying on the ephemeral cache, a custom fixed-window query was implemented directly against the `rate_limit_attempt` table. It enforces a strict cap of 50 `/init` requests per minute globally across all containers.
 3. **Hardware Fingerprint Exponential Backoff (Database-Backed):** A custom `ExponentialRateLimiter` service tracks the Android TV's `androidId` (or the User's ID during dashboard pairing) and exponentially delays subsequent initialization attempts (e.g., $3^{attempts}$ seconds), locking out spamming devices for hours. To prevent race conditions and bypass issues associated with ephemeral container filesystems on DigitalOcean, this rate limiter uses strict **Pessimistic Locking** (`SELECT ... FOR UPDATE`) directly against a dedicated `rate_limit_attempt` database table. This ensures 100% reliable distributed rate limiting across all scaled containers. The `androidId` is also permanently saved to the `Device` entity for tracking.
 
 ### Heartbeat (Process 4)
