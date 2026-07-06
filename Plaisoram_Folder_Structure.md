@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-06-24 16:36:20
+> **Generated:** 2026-07-03 15:49:48
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -180,7 +180,9 @@ plaisoram_web/
 │   │   ├── useDebounce.ts
 │   │   ├── useDevices.ts
 │   │   ├── useMedia.ts
-│   │   └── usePlaylists.ts
+│   │   ├── usePagination.ts
+│   │   ├── usePlaylists.ts
+│   │   └── useScheduleConflict.ts
 │   ├── i18n/
 │   │   ├── request.ts
 │   │   └── routing.ts
@@ -214,11 +216,14 @@ Plaisoram_Server/
 │   └── workflows/
 │       └── release.yml
 ├── .gitignore
+├── .phpunit.cache/
+│   └── test-results
 ├── .releaserc.json
 ├── bin/
 │   ├── console
 │   ├── phpunit
 │   └── test_delete.php
+├── check.php
 ├── compose.override.yaml
 ├── compose.yaml
 ├── composer.json
@@ -267,68 +272,151 @@ Plaisoram_Server/
 │   ├── Version20260520160213.php
 │   ├── Version20260525140800.php
 │   ├── Version20260525144200.php
-│   └── Version20260526113722.php
+│   ├── Version20260526113722.php
+│   ├── Version20260629085520.php
+│   ├── Version20260629103157.php
+│   ├── Version20260629170101.php
+│   ├── Version20260630155754.php
+│   ├── Version20260630171418.php
+│   ├── Version20260701173538.php
+│   └── Version20260702183732.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
 │   └── index.php
 ├── run-worker.bat
 ├── src/
+│   ├── DataFixtures/
+│   │   └── AppFixtures.php
 │   ├── Kernel.php
 │   ├── Modules/
 │   │   ├── Device/
+│   │   │   ├── Command/
+│   │   │   │   └── DeviceBatchPingCommand.php
 │   │   │   ├── Controller/
-│   │   │   │   ├── DeviceController.php
-│   │   │   │   └── PlayerController.php
+│   │   │   │   └── DeviceController.php
+│   │   │   ├── DTO/
+│   │   │   │   ├── DeviceInitDTO.php
+│   │   │   │   ├── DevicePairDTO.php
+│   │   │   │   ├── DevicePublishDTO.php
+│   │   │   │   ├── DeviceStatusDTO.php
+│   │   │   │   └── DeviceUpdateDTO.php
 │   │   │   ├── Entity/
-│   │   │   │   └── Device.php
+│   │   │   │   ├── Device.php
+│   │   │   │   └── RateLimitAttempt.php
 │   │   │   ├── EventListener/
 │   │   │   │   └── DeviceStatusListener.php
+│   │   │   ├── Message/
+│   │   │   │   ├── PingWorkspaceDevicesMessage.php
+│   │   │   │   └── VerifyWorkspaceDevicesMessage.php
+│   │   │   ├── MessageHandler/
+│   │   │   │   ├── PingWorkspaceDevicesMessageHandler.php
+│   │   │   │   └── VerifyWorkspaceDevicesMessageHandler.php
+│   │   │   ├── Repository/
+│   │   │   │   ├── DeviceRepository.php
+│   │   │   │   ├── DeviceRepositoryInterface.php
+│   │   │   │   └── RateLimitAttemptRepository.php
 │   │   │   └── Service/
-│   │   │       └── DeviceMapper.php
+│   │   │       ├── DeviceManager.php
+│   │   │       ├── DeviceManagerInterface.php
+│   │   │       ├── DeviceMapper.php
+│   │   │       ├── DeviceNotifierInterface.php
+│   │   │       ├── ExponentialRateLimiter.php
+│   │   │       ├── MercureDeviceNotifier.php
+│   │   │       └── RateLimitResult.php
 │   │   ├── Media/
 │   │   │   ├── Controller/
 │   │   │   │   ├── MediaController.php
 │   │   │   │   └── MediaFolderController.php
-│   │   │   └── Entity/
-│   │   │       ├── Media.php
-│   │   │       └── MediaFolder.php
+│   │   │   ├── DTO/
+│   │   │   │   ├── MediaConfirmUploadDTO.php
+│   │   │   │   ├── MediaFolderCreateDTO.php
+│   │   │   │   └── MediaFolderUpdateDTO.php
+│   │   │   ├── Entity/
+│   │   │   │   ├── Media.php
+│   │   │   │   └── MediaFolder.php
+│   │   │   ├── Repository/
+│   │   │   │   ├── MediaFolderRepository.php
+│   │   │   │   ├── MediaFolderRepositoryInterface.php
+│   │   │   │   ├── MediaRepository.php
+│   │   │   │   └── MediaRepositoryInterface.php
+│   │   │   └── Service/
+│   │   │       ├── MediaManager.php
+│   │   │       └── MediaManagerInterface.php
 │   │   ├── Playlist/
 │   │   │   ├── Command/
 │   │   │   │   └── CleanupPlaylistsCommand.php
 │   │   │   ├── Controller/
 │   │   │   │   └── PlaylistController.php
+│   │   │   ├── DTO/
+│   │   │   │   ├── PlaylistDataDTO.php
+│   │   │   │   ├── PlaylistSectionDTO.php
+│   │   │   │   └── PlaylistZoneDTO.php
 │   │   │   ├── Entity/
 │   │   │   │   ├── Playlist.php
-│   │   │   │   ├── PlaylistMedia.php
 │   │   │   │   ├── PlaylistSection.php
 │   │   │   │   └── Zone.php
 │   │   │   ├── Message/
 │   │   │   │   └── PublishPlaylistMessage.php
 │   │   │   ├── MessageHandler/
 │   │   │   │   └── PublishPlaylistMessageHandler.php
+│   │   │   ├── Repository/
+│   │   │   │   ├── PlaylistRepository.php
+│   │   │   │   ├── PlaylistRepositoryInterface.php
+│   │   │   │   ├── PlaylistSectionRepository.php
+│   │   │   │   ├── PlaylistSectionRepositoryInterface.php
+│   │   │   │   ├── ZoneRepository.php
+│   │   │   │   └── ZoneRepositoryInterface.php
 │   │   │   └── Service/
-│   │   │       └── PlaylistManager.php
+│   │   │       ├── PlaylistManager.php
+│   │   │       └── PlaylistManagerInterface.php
 │   │   ├── Schedule/
 │   │   │   ├── Controller/
 │   │   │   │   └── ScheduleController.php
-│   │   │   └── Entity/
-│   │   │       └── PublishSchedule.php
+│   │   │   ├── DTO/
+│   │   │   │   └── ScheduleCreateDTO.php
+│   │   │   ├── Entity/
+│   │   │   │   └── PublishSchedule.php
+│   │   │   ├── Message/
+│   │   │   │   └── VerifyDeviceStatusMessage.php
+│   │   │   ├── MessageHandler/
+│   │   │   │   └── VerifyDeviceStatusMessageHandler.php
+│   │   │   ├── Repository/
+│   │   │   │   ├── PublishScheduleRepository.php
+│   │   │   │   └── PublishScheduleRepositoryInterface.php
+│   │   │   └── Service/
+│   │   │       ├── ScheduleManager.php
+│   │   │       └── ScheduleManagerInterface.php
 │   │   └── User/
 │   │       ├── Controller/
 │   │       │   ├── ProfileController.php
 │   │       │   └── RegistrationController.php
+│   │       ├── DTO/
+│   │       │   ├── ProfileUpdateDTO.php
+│   │       │   ├── RegistrationDTO.php
+│   │       │   └── WorkspaceUpdateDTO.php
 │   │       ├── Entity/
 │   │       │   ├── RefreshToken.php
 │   │       │   ├── User.php
 │   │       │   └── Workspace.php
-│   │       └── Repository/
-│   │           └── UserRepository.php
+│   │       ├── EventListener/
+│   │       │   └── LoginRateLimiterSubscriber.php
+│   │       ├── Repository/
+│   │       │   ├── UserRepository.php
+│   │       │   ├── UserRepositoryInterface.php
+│   │       │   ├── WorkspaceRepository.php
+│   │       │   └── WorkspaceRepositoryInterface.php
+│   │       └── Service/
+│   │           ├── UserManager.php
+│   │           └── UserManagerInterface.php
+│   ├── Schedule.php
 │   └── Shared/
 │       ├── Domain/
 │       │   └── .gitkeep
 │       ├── Exception/
 │       │   ├── .gitkeep
+│       │   ├── Device/
+│       │   │   └── NotificationFailedException.php
 │       │   ├── DomainException.php
 │       │   └── Playlist/
 │       │       ├── CannotDeleteDefaultPlaylistException.php
@@ -338,6 +426,34 @@ Plaisoram_Server/
 │           └── .gitkeep
 ├── symfony.lock
 ├── tests/
+│   ├── Application/
+│   │   ├── DeviceControllerTest.php
+│   │   ├── MediaControllerTest.php
+│   │   ├── PlaylistControllerTest.php
+│   │   ├── ScheduleControllerTest.php
+│   │   └── UserControllerTest.php
+│   ├── Functional/
+│   │   └── ContainerSmokeTest.php
+│   ├── Modules/
+│   │   ├── Device/
+│   │   │   └── Service/
+│   │   │       ├── DeviceManagerTest.php
+│   │   │       ├── DeviceMapperTest.php
+│   │   │       └── MercureDeviceNotifierTest.php
+│   │   ├── Media/
+│   │   │   └── Service/
+│   │   │       └── MediaManagerTest.php
+│   │   ├── Playlist/
+│   │   │   └── Service/
+│   │   │       └── PlaylistManagerTest.php
+│   │   ├── Schedule/
+│   │   │   └── Service/
+│   │   │       └── ScheduleManagerTest.php
+│   │   └── User/
+│   │       └── Service/
+│   │           └── UserManagerTest.php
+│   ├── Unit/
+│   │   └── ExponentialRateLimiterTest.php
 │   └── bootstrap.php
 └── translations/
     ├── .gitignore
