@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-07-03 15:49:48
+> **Generated:** 2026-07-10 16:47:22
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -77,7 +77,9 @@ plaisoram_web/
 │   │   │   │   │   ├── components/
 │   │   │   │   │   │   ├── DevicePickerModal.tsx
 │   │   │   │   │   │   ├── MediaPickerModal.tsx
-│   │   │   │   │   │   └── TVCanvas.tsx
+│   │   │   │   │   │   ├── NewsConfigModal.tsx
+│   │   │   │   │   │   ├── TVCanvas.tsx
+│   │   │   │   │   │   └── WeatherConfigModal.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── schedules/
@@ -279,7 +281,8 @@ Plaisoram_Server/
 │   ├── Version20260630155754.php
 │   ├── Version20260630171418.php
 │   ├── Version20260701173538.php
-│   └── Version20260702183732.php
+│   ├── Version20260702183732.php
+│   └── Version20260703162643.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
@@ -378,8 +381,10 @@ Plaisoram_Server/
 │   │   │   ├── Entity/
 │   │   │   │   └── PublishSchedule.php
 │   │   │   ├── Message/
+│   │   │   │   ├── ClearDevicePlaylistMessage.php
 │   │   │   │   └── VerifyDeviceStatusMessage.php
 │   │   │   ├── MessageHandler/
+│   │   │   │   ├── ClearDevicePlaylistMessageHandler.php
 │   │   │   │   └── VerifyDeviceStatusMessageHandler.php
 │   │   │   ├── Repository/
 │   │   │   │   ├── PublishScheduleRepository.php
@@ -387,28 +392,31 @@ Plaisoram_Server/
 │   │   │   └── Service/
 │   │   │       ├── ScheduleManager.php
 │   │   │       └── ScheduleManagerInterface.php
-│   │   └── User/
-│   │       ├── Controller/
-│   │       │   ├── ProfileController.php
-│   │       │   └── RegistrationController.php
-│   │       ├── DTO/
-│   │       │   ├── ProfileUpdateDTO.php
-│   │       │   ├── RegistrationDTO.php
-│   │       │   └── WorkspaceUpdateDTO.php
-│   │       ├── Entity/
-│   │       │   ├── RefreshToken.php
-│   │       │   ├── User.php
-│   │       │   └── Workspace.php
-│   │       ├── EventListener/
-│   │       │   └── LoginRateLimiterSubscriber.php
-│   │       ├── Repository/
-│   │       │   ├── UserRepository.php
-│   │       │   ├── UserRepositoryInterface.php
-│   │       │   ├── WorkspaceRepository.php
-│   │       │   └── WorkspaceRepositoryInterface.php
-│   │       └── Service/
-│   │           ├── UserManager.php
-│   │           └── UserManagerInterface.php
+│   │   ├── User/
+│   │   │   ├── Controller/
+│   │   │   │   ├── ProfileController.php
+│   │   │   │   └── RegistrationController.php
+│   │   │   ├── DTO/
+│   │   │   │   ├── ProfileUpdateDTO.php
+│   │   │   │   ├── RegistrationDTO.php
+│   │   │   │   └── WorkspaceUpdateDTO.php
+│   │   │   ├── Entity/
+│   │   │   │   ├── RefreshToken.php
+│   │   │   │   ├── User.php
+│   │   │   │   └── Workspace.php
+│   │   │   ├── EventListener/
+│   │   │   │   └── LoginRateLimiterSubscriber.php
+│   │   │   ├── Repository/
+│   │   │   │   ├── UserRepository.php
+│   │   │   │   ├── UserRepositoryInterface.php
+│   │   │   │   ├── WorkspaceRepository.php
+│   │   │   │   └── WorkspaceRepositoryInterface.php
+│   │   │   └── Service/
+│   │   │       ├── UserManager.php
+│   │   │       └── UserManagerInterface.php
+│   │   └── Widget/
+│   │       └── Controller/
+│   │           └── WidgetController.php
 │   ├── Schedule.php
 │   └── Shared/
 │       ├── Domain/
@@ -498,16 +506,19 @@ Plaisoram_Player/
 │           │               │   │       ├── DeviceConfigEntity.kt
 │           │               │   │       └── PlaylistItemEntity.kt
 │           │               │   ├── remote/
+│           │               │   │   ├── MercureService.kt
 │           │               │   │   ├── PlaisoramApi.kt
 │           │               │   │   └── dto/
 │           │               │   │       ├── InitDeviceRequestDto.kt
 │           │               │   │       ├── InitDeviceResponseDto.kt
 │           │               │   │       ├── PairingResponseDto.kt
 │           │               │   │       ├── PlaylistItemDto.kt
-│           │               │   │       └── PlaylistLayoutDto.kt
+│           │               │   │       ├── PlaylistLayoutDto.kt
+│           │               │   │       └── WidgetResponseDto.kt
 │           │               │   ├── repository/
 │           │               │   │   ├── DeviceRepositoryImpl.kt
 │           │               │   │   ├── MediaRepositoryImpl.kt
+│           │               │   │   ├── MercureRepositoryImpl.kt
 │           │               │   │   └── PlaylistRepositoryImpl.kt
 │           │               │   ├── sync/
 │           │               │   │   ├── SyncEngineImpl.kt
@@ -527,6 +538,7 @@ Plaisoram_Player/
 │           │               │   ├── repository/
 │           │               │   │   ├── DeviceRepository.kt
 │           │               │   │   ├── MediaRepository.kt
+│           │               │   │   ├── MercureRepository.kt
 │           │               │   │   └── PlaylistRepository.kt
 │           │               │   ├── sync/
 │           │               │   │   └── SyncEngine.kt
@@ -536,14 +548,10 @@ Plaisoram_Player/
 │           │               │       ├── GetWeatherUseCase.kt
 │           │               │       └── SyncPlaylistUseCase.kt
 │           │               ├── presentation/
-│           │               │   ├── news/
-│           │               │   │   └── NewsViewModel.kt
 │           │               │   ├── pairing/
 │           │               │   │   └── PairingViewModel.kt
-│           │               │   ├── player/
-│           │               │   │   └── PlayerViewModel.kt
-│           │               │   └── weather/
-│           │               │       └── WeatherViewModel.kt
+│           │               │   └── player/
+│           │               │       └── PlayerViewModel.kt
 │           │               └── ui/
 │           │                   ├── components/
 │           │                   │   ├── ImagePlayer.kt
