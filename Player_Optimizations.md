@@ -18,14 +18,11 @@ This document tracks build-time, memory, and performance optimizations implement
 ### 2. ExoPlayer Buffering & Memory Tuning
 * **Target File:** [VideoPlayer.kt](file:///c:/Users/zrirak/Desktop/Software/Plaisoram/Plaisoram_Player/app/src/main/java/com/sobrus/plaisoramplayer/ui/components/VideoPlayer.kt)
 * **Description:**
-  * Adjusted `setBufferDurationsMs` to industry-standard values for signage devices:
-    * Minimum buffer: `20000ms` (20s)
-    * Maximum buffer: `50000ms` (50s)
-    * Start playback threshold: `2500ms` (2.5s)
-    * Re-buffer threshold: `5000ms` (5s)
-  * Added active resource cleanup (`exoPlayer.stop()` and `exoPlayer.clearMediaItems()`) prior to releasing the ExoPlayer instance on video changes.
+  * Utilized default LoadControl buffers, avoiding aggressive limits that starve local files on low-RAM TV boxes.
+  * Added unbinding safety (`exoPlayer = null`) prior to releasing previous players to prevent the TV box hardware rendering pipeline from deadlocking on transition.
+  * Added `onPlayerError` listener to intercept decoder errors and skip corrupted or unsupported media instead of freezing the screen.
   * Configured the repeating behavior as `Player.REPEAT_MODE_ALL` to ensure that if a video is shorter than the playlist section's duration, it loops smoothly rather than freezing/blocking on the last frame.
-* **Benefit:** Eliminates stuttering/lag during playlist item transitions on low-end TV boxes under variable local/network conditions, prevents cumulative decoder memory leaks, and ensures videos loop correctly within active layouts.
+* **Benefit:** Eliminates transition freeze deadlocks, intercepts and skips unsupported video profiles/corrupted local files, and prevents memory leaks or stuttering.
 
 ### 3. Image Memory Management & Hardware Bitmaps
 * **Target File:** [ImagePlayer.kt](file:///c:/Users/zrirak/Desktop/Software/Plaisoram/Plaisoram_Player/app/src/main/java/com/sobrus/plaisoramplayer/ui/components/ImagePlayer.kt)
