@@ -24,8 +24,8 @@ This document tracks build-time, memory, and performance optimizations implement
     * Start playback threshold: `2500ms` (2.5s)
     * Re-buffer threshold: `5000ms` (5s)
   * Added active resource cleanup (`exoPlayer.stop()` and `exoPlayer.clearMediaItems()`) prior to releasing the ExoPlayer instance on video changes.
-  * Changed the repeating behavior from `Player.REPEAT_MODE_ALL` to `Player.REPEAT_MODE_OFF` and added a `Player.Listener` to detect `Player.STATE_ENDED` to trigger the `onVideoEnded()` callback.
-* **Benefit:** Eliminates stuttering/lag during playlist item transitions on low-end TV boxes under variable local/network conditions, prevents cumulative decoder memory leaks, and fixes the issue where videos loop infinitely instead of advancing to the next playlist item when completed.
+  * Configured the repeating behavior as `Player.REPEAT_MODE_ALL` to ensure that if a video is shorter than the playlist section's duration, it loops smoothly rather than freezing/blocking on the last frame.
+* **Benefit:** Eliminates stuttering/lag during playlist item transitions on low-end TV boxes under variable local/network conditions, prevents cumulative decoder memory leaks, and ensures videos loop correctly within active layouts.
 
 ### 3. Image Memory Management & Hardware Bitmaps
 * **Target File:** [ImagePlayer.kt](file:///c:/Users/zrirak/Desktop/Software/Plaisoram/Plaisoram_Player/app/src/main/java/com/sobrus/plaisoramplayer/ui/components/ImagePlayer.kt)
