@@ -85,8 +85,6 @@ flowchart LR
     Mercure -. "SSE Push (Dashboard Sync)" .-> Web
 ```
 
----
-
 ## 2. Android Player Internal Offline-First Architecture
 
 A critical component missing from standard high-level network diagrams is the **internal persistent database and caching layer** of the digital signage player (`Plaisoram_Player`). Because digital signage screens operate in commercial environments where internet connectivity can be intermittent or unstable, the Android player is engineered as an **Offline-First App**.

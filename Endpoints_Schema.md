@@ -1,6 +1,6 @@
 # Plaisoram System Endpoints
 
-> **Last Updated:** 2026-07-01
+> **Last Updated:** 2026-07-14
 > **Scope:** Complete mapping of routes and API endpoints across the three main pillars of the Plaisoram ecosystem: **Plaisoram_Server** (Symfony 8 API Backend), **plaisoram_web** (Next.js Frontend & Proxy), and **Plaisoram_Player** (Android Kotlin Digital Signage Client).
 
 ---
@@ -8,7 +8,7 @@
 ## 1. Plaisoram_Server (Symfony API Backend)
 
 Core REST API endpoints served by the Symfony backend.
-Endpoints are explicitly demarcated as **[🌐 Public]** (accessible without JWT authentication, typically used for device pairing/bootstrapping) or **[🔒 Private]** (requires a valid JWT Bearer token and active workspace context).
+Endpoints are explicitly demarcated as **[🌐 Public]** (accessible without JWT authentication, typically used for device pairing/bootstrapping or widget data) or **[🔒 Private]** (requires a valid JWT Bearer token and active workspace context).
 
 ### **Device Management (`/api/devices`)**
 *Note: While firewall routing permits public access to certain Android Player endpoints (such as init, pairing status, and active playlist retrieval), internal controller logic strictly secures management endpoints (listing, pairing, deleting, power toggling) by enforcing authentication and workspace verification.*
@@ -47,6 +47,11 @@ Endpoints are explicitly demarcated as **[🌐 Public]** (accessible without JWT
 - `PUT    /api/playlists/{id}` — Update an existing playlist's structure and zone assignments (`api_playlists_update`). **[🔒 Private]**
 - `DELETE /api/playlists/{id}` — Delete a playlist from the workspace (`api_playlists_delete`). **[🔒 Private]**
 - `POST   /api/playlists/{id}/duplicate` — Clone/duplicate an existing playlist within the workspace (`api_playlists_duplicate`). **[🔒 Private]**
+- `POST/PUT/PATCH /api/playlists/{id}/default` — Set a specific playlist as the default playlist (`api_playlists_set_default`). **[🔒 Private]**
+
+### **Widget Management (`/api/widgets`)**
+- `GET    /api/widgets/weather` — Get current weather and 1-hour step timeline forecast (`?city=&country=`). Cached server-side for 15 minutes via OpenWeather Geocoding and One Call API 4.0 (`api_widgets_weather`). **[🌐 Public]**
+- `GET    /api/widgets/news` — Get top news headlines (`?country=&category=`). Cached server-side for 30 minutes via NewsAPI (`api_widgets_news`). **[🌐 Public]**
 
 ### **Scheduling (`/api/schedules`)**
 - `GET    /api/schedules` — Get all scheduled publications for the workspace. **[🔒 Private]**
@@ -66,13 +71,13 @@ Endpoints are explicitly demarcated as **[🌐 Public]** (accessible without JWT
 - `ALL    /logout` — Security route loader for session/token invalidation (`_security_logout`). **[🔒 Private]**
 
 ### **Real-Time Hub (Mercure SSE)**
-- `GET    /.well-known/mercure` — Mercure Server-Sent Events (SSE) Hub endpoint for pushing live updates (device power toggle, refresh commands, playlist updates, and online/offline status changes) to web dashboards and connected players. **[🔒 Protected via JWT Topics]**
+- `GET    /.well-known/mercure` — Mercure Server-Sent Events (SSE) Hub endpoint for pushing live updates (device power toggle, refresh commands, playlist updates, and online/offline status changes) to web dashboards and connected players (`topic=device/{deviceId}/updates&topic=device/global/updates`). **[🔒 Protected via JWT Topics]**
 
 ---
 
 ## 2. plaisoram_web (Next.js Frontend)
 
-The web dashboard routes, server actions, and internal API proxy endpoints.
+The web dashboard routes, server actions, client mutations, and internal API proxy endpoints.
 
 ### **Internal API & Proxy Routes (`src/app/api`)**
 - `POST   /api/logout` — Invalidation route that clears authentication cookies (`token` and `refresh_token`). **[🔒 Private]**
@@ -85,6 +90,10 @@ The web dashboard routes, server actions, and internal API proxy endpoints.
 - `getProfileAction()` / `updateProfileAction(data)` / `updateWorkspaceAction(data)` / `uploadLogoAction(formData)` — Server actions interacting with `/api/profile` and `/api/media`.
 - `setLocaleAction(locale)` — Sets the `NEXT_LOCALE` cookie for multi-language support (English/French).
 
+### **Client Hooks & Mutations (`src/hooks`)**
+- `usePlaylists()` — Manages playlist queries and mutations (`setDefaultPlaylist` via `/api/playlists/{id}/default`, `duplicatePlaylist` via `/api/playlists/{id}/duplicate`, `deletePlaylist` via `/api/playlists/{id}`).
+- `useDevices()`, `useMedia()`, `useDashboard()`, `useScheduleConflict()` — Client-side React Query hooks communicating with internal proxy endpoints (`fetchClient`).
+
 ### **Dashboard Pages (Client Routes)**
 - `/` — Main Dashboard Overview
 - `/login` — User Login Page
@@ -93,7 +102,7 @@ The web dashboard routes, server actions, and internal API proxy endpoints.
 - `/devices/add` — Add New Device Wizard & Pairing Code Input
 - `/media` — Media Asset & Folder Library
 - `/playlists` — Playlists Management List
-- `/playlists/editLayout` — Interactive Multi-Zone TV Canvas Editor
+- `/playlists/editLayout` — Interactive Multi-Zone TV Canvas Editor (with News & Weather configuration modals)
 - `/schedules` — Scheduling Calendar & Publication Overview
 - `/apps` — Integrations and Apps Marketplace
 - `/canvas` — Freeform Canvas Designer
@@ -109,9 +118,15 @@ The web dashboard routes, server actions, and internal API proxy endpoints.
 
 ## 3. Plaisoram_Player (Android Kotlin Client)**
 
-The Android digital signage player acts as a remote client utilizing Clean Architecture (Retrofit / Room / WorkManager). It interacts with the backend via the following REST endpoints defined in `PlaisoramApi.kt`:
+The Android digital signage player acts as a remote client utilizing Clean Architecture (Retrofit / Room / WorkManager). It interacts with the backend via the following REST endpoints defined in `PlaisoramApi.kt` and real-time SSE streams defined in `MercureService.kt`:
 
-### **Consumed API Endpoints**
+### **Consumed API Endpoints (`PlaisoramApi.kt`)**
 - `POST   /api/devices/init` — Invoked on initial boot to register device hardware specs (`androidId`, `width`, `height`) and obtain a 6-character pairing code. **[🌐 Public]**
 - `GET    /api/devices/{id}/status` — Polled continuously during the pairing screen flow to check if the device has been linked to a workspace by a user. **[🌐 Public]**
 - `GET    /api/devices/{deviceId}/playlist` — Fetches the active playlist layout, zone definitions, and media asset URLs for background downloading and offline-resilient screen rendering. **[🌐 Public]**
+- `GET    /api/widgets/weather` — Consumed by weather widget rendering to fetch geocoded live weather and timeline forecast data (`city`, `country`). **[🌐 Public]**
+- `GET    /api/widgets/news` — Consumed by news widget rendering to fetch localized top news headlines (`country`, `category`). **[🌐 Public]**
+
+### **Real-Time Mercure SSE Subscriptions (`MercureService.kt`)**
+- Subscribes to SSE stream at `${BuildConfig.MERCURE_URL}?topic=device/{deviceId}/updates&topic=device/global/updates` with `Bearer` authentication.
+- Features proactive debounced network reconnection (`ConnectivityManager.NetworkCallback`), wake/wifi locks, and a 90-second silence watchdog timer to detect and recover from half-open connections.
