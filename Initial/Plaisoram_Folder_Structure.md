@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-07-14 15:06:33
+> **Generated:** 2026-07-19 12:07:47
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -51,18 +51,25 @@ plaisoram_web/
 │   │   ├── (auth)/
 │   │   │   ├── layout.tsx
 │   │   │   ├── login/
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   └── signup/
+│   │   │       ├── layout.tsx
 │   │   │       └── page.tsx
 │   │   ├── (dashboard)/
 │   │   │   ├── apps/
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── canvas/
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── devices/
 │   │   │   │   ├── add/
+│   │   │   │   │   ├── layout.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── components/
+│   │   │   │   ├── layout.tsx
+│   │   │   │   ├── loading.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── loading.tsx
@@ -70,6 +77,7 @@ plaisoram_web/
 │   │   │   │   ├── components/
 │   │   │   │   │   ├── FolderModal.tsx
 │   │   │   │   │   └── PublishMediaModal.tsx
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── playlists/
@@ -80,30 +88,40 @@ plaisoram_web/
 │   │   │   │   │   │   ├── NewsConfigModal.tsx
 │   │   │   │   │   │   ├── TVCanvas.tsx
 │   │   │   │   │   │   └── WeatherConfigModal.tsx
+│   │   │   │   │   ├── layout.tsx
 │   │   │   │   │   └── page.tsx
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── schedules/
+│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   └── settings/
 │   │   │       ├── about/
+│   │   │       │   ├── layout.tsx
 │   │   │       │   └── page.tsx
 │   │   │       ├── billing/
+│   │   │       │   ├── layout.tsx
 │   │   │       │   └── page.tsx
 │   │   │       ├── companyinformations/
+│   │   │       │   ├── layout.tsx
 │   │   │       │   └── page.tsx
 │   │   │       ├── layout.tsx
 │   │   │       ├── logo/
+│   │   │       │   ├── layout.tsx
 │   │   │       │   └── page.tsx
 │   │   │       ├── page.tsx
 │   │   │       ├── profile/
+│   │   │       │   ├── layout.tsx
 │   │   │       │   └── page.tsx
 │   │   │       └── support/
+│   │   │           ├── layout.tsx
 │   │   │           └── page.tsx
 │   │   ├── api/
 │   │   │   ├── [...slug]/
 │   │   │   │   └── route.ts
 │   │   │   └── logout/
 │   │   │       └── route.ts
+│   │   ├── icon.svg
 │   │   └── layout.tsx
 │   ├── components/
 │   │   ├── Dashboard/
@@ -184,7 +202,9 @@ plaisoram_web/
 │   │   ├── useMedia.ts
 │   │   ├── usePagination.ts
 │   │   ├── usePlaylists.ts
-│   │   └── useScheduleConflict.ts
+│   │   ├── useProfile.ts
+│   │   ├── useScheduleConflict.ts
+│   │   └── useSchedules.ts
 │   ├── i18n/
 │   │   ├── request.ts
 │   │   └── routing.ts
@@ -192,6 +212,7 @@ plaisoram_web/
 │   │   ├── api.ts
 │   │   ├── fetchClient.ts
 │   │   ├── layouts.ts
+│   │   ├── upload.ts
 │   │   └── utils.ts
 │   ├── proxy.ts
 │   ├── styles/
@@ -225,7 +246,6 @@ Plaisoram_Server/
 │   ├── console
 │   ├── phpunit
 │   └── test_delete.php
-├── check.php
 ├── compose.override.yaml
 ├── compose.yaml
 ├── composer.json
@@ -283,7 +303,8 @@ Plaisoram_Server/
 │   ├── Version20260701173538.php
 │   ├── Version20260702183732.php
 │   ├── Version20260703162643.php
-│   └── Version20260713172000.php
+│   ├── Version20260713172000.php
+│   └── Version20260715173925.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
@@ -420,19 +441,15 @@ Plaisoram_Server/
 │   │           └── WidgetController.php
 │   ├── Schedule.php
 │   └── Shared/
-│       ├── Domain/
-│       │   └── .gitkeep
-│       ├── Exception/
-│       │   ├── .gitkeep
-│       │   ├── Device/
-│       │   │   └── NotificationFailedException.php
-│       │   ├── DomainException.php
-│       │   └── Playlist/
-│       │       ├── CannotDeleteDefaultPlaylistException.php
-│       │       ├── DuplicatePlaylistNameException.php
-│       │       └── ReservedNameException.php
-│       └── Infrastructure/
-│           └── .gitkeep
+│       └── Exception/
+│           ├── .gitkeep
+│           ├── Device/
+│           │   └── NotificationFailedException.php
+│           ├── DomainException.php
+│           └── Playlist/
+│               ├── CannotDeleteDefaultPlaylistException.php
+│               ├── DuplicatePlaylistNameException.php
+│               └── ReservedNameException.php
 ├── symfony.lock
 ├── tests/
 │   ├── Application/
@@ -461,8 +478,6 @@ Plaisoram_Server/
 │   │   └── User/
 │   │       └── Service/
 │   │           └── UserManagerTest.php
-│   ├── Unit/
-│   │   └── ExponentialRateLimiterTest.php
 │   └── bootstrap.php
 └── translations/
     ├── .gitignore
