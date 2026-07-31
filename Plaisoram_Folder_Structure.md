@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-07-19 12:07:47
+> **Generated:** 2026-07-22 17:06:37
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -127,6 +127,7 @@ plaisoram_web/
 │   │   ├── Dashboard/
 │   │   │   ├── ActionCard.tsx
 │   │   │   ├── GettingStartedWidget.tsx
+│   │   │   ├── OfflineDevicesAlert.tsx
 │   │   │   ├── OnboardingTour.tsx
 │   │   │   ├── PublishScheduleModal.tsx
 │   │   │   └── UsageStatsWidget.tsx
@@ -204,7 +205,8 @@ plaisoram_web/
 │   │   ├── usePlaylists.ts
 │   │   ├── useProfile.ts
 │   │   ├── useScheduleConflict.ts
-│   │   └── useSchedules.ts
+│   │   ├── useSchedules.ts
+│   │   └── useSocket.ts
 │   ├── i18n/
 │   │   ├── request.ts
 │   │   └── routing.ts
@@ -304,7 +306,8 @@ Plaisoram_Server/
 │   ├── Version20260702183732.php
 │   ├── Version20260703162643.php
 │   ├── Version20260713172000.php
-│   └── Version20260715173925.php
+│   ├── Version20260715173925.php
+│   └── Version20260721165500.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
@@ -317,7 +320,6 @@ Plaisoram_Server/
 │   ├── Modules/
 │   │   ├── Device/
 │   │   │   ├── Command/
-│   │   │   │   └── DeviceBatchPingCommand.php
 │   │   │   ├── Controller/
 │   │   │   │   └── DeviceController.php
 │   │   │   ├── DTO/
@@ -332,11 +334,7 @@ Plaisoram_Server/
 │   │   │   ├── EventListener/
 │   │   │   │   └── DeviceStatusListener.php
 │   │   │   ├── Message/
-│   │   │   │   ├── PingWorkspaceDevicesMessage.php
-│   │   │   │   └── VerifyWorkspaceDevicesMessage.php
 │   │   │   ├── MessageHandler/
-│   │   │   │   ├── PingWorkspaceDevicesMessageHandler.php
-│   │   │   │   └── VerifyWorkspaceDevicesMessageHandler.php
 │   │   │   ├── Repository/
 │   │   │   │   ├── DeviceRepository.php
 │   │   │   │   ├── DeviceRepositoryInterface.php
@@ -348,7 +346,8 @@ Plaisoram_Server/
 │   │   │       ├── DeviceNotifierInterface.php
 │   │   │       ├── ExponentialRateLimiter.php
 │   │   │       ├── MercureDeviceNotifier.php
-│   │   │       └── RateLimitResult.php
+│   │   │       ├── RateLimitResult.php
+│   │   │       └── SocketIoDeviceNotifier.php
 │   │   ├── Media/
 │   │   │   ├── Controller/
 │   │   │   │   ├── MediaController.php
@@ -522,6 +521,7 @@ Plaisoram_Player/
 │           │               │   │       ├── DeviceConfigEntity.kt
 │           │               │   │       └── PlaylistItemEntity.kt
 │           │               │   ├── remote/
+│           │               │   │   ├── DeviceHealthSocketManager.kt
 │           │               │   │   ├── MercureService.kt
 │           │               │   │   ├── PlaisoramApi.kt
 │           │               │   │   └── dto/
