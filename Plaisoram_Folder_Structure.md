@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-07-22 17:06:37
+> **Generated:** 2026-08-04 14:35:54
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -29,6 +29,7 @@ plaisoram_web/
 │   └── fr.json
 ├── next-env.d.ts
 ├── next.config.ts
+├── package-lock.json
 ├── package.json
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
@@ -126,10 +127,12 @@ plaisoram_web/
 │   ├── components/
 │   │   ├── Dashboard/
 │   │   │   ├── ActionCard.tsx
+│   │   │   ├── DeviceGroupModal.tsx
 │   │   │   ├── GettingStartedWidget.tsx
 │   │   │   ├── OfflineDevicesAlert.tsx
 │   │   │   ├── OnboardingTour.tsx
 │   │   │   ├── PublishScheduleModal.tsx
+│   │   │   ├── ShareDeviceModal.tsx
 │   │   │   └── UsageStatsWidget.tsx
 │   │   ├── Layout/
 │   │   │   └── Dashboard/
@@ -199,6 +202,7 @@ plaisoram_web/
 │   │   ├── use-mobile.ts
 │   │   ├── useDashboard.ts
 │   │   ├── useDebounce.ts
+│   │   ├── useDeviceGroups.ts
 │   │   ├── useDevices.ts
 │   │   ├── useMedia.ts
 │   │   ├── usePagination.ts
@@ -217,6 +221,8 @@ plaisoram_web/
 │   │   ├── upload.ts
 │   │   └── utils.ts
 │   ├── proxy.ts
+│   ├── schemas/
+│   │   └── mediaValidationSchema.ts
 │   ├── styles/
 │   │   ├── favicon.ico
 │   │   └── globals.css
@@ -241,8 +247,6 @@ Plaisoram_Server/
 │   └── workflows/
 │       └── release.yml
 ├── .gitignore
-├── .phpunit.cache/
-│   └── test-results
 ├── .releaserc.json
 ├── bin/
 │   ├── console
@@ -307,7 +311,12 @@ Plaisoram_Server/
 │   ├── Version20260703162643.php
 │   ├── Version20260713172000.php
 │   ├── Version20260715173925.php
-│   └── Version20260721165500.php
+│   ├── Version20260721165500.php
+│   ├── Version20260728125500.php
+│   ├── Version20260728130000.php
+│   ├── Version20260728160000.php
+│   ├── Version20260729175800.php
+│   └── Version20260731164100.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
@@ -321,8 +330,12 @@ Plaisoram_Server/
 │   │   ├── Device/
 │   │   │   ├── Command/
 │   │   │   ├── Controller/
-│   │   │   │   └── DeviceController.php
+│   │   │   │   ├── DeviceController.php
+│   │   │   │   └── DeviceGroupController.php
 │   │   │   ├── DTO/
+│   │   │   │   ├── BatchActionDTO.php
+│   │   │   │   ├── BatchPublishDTO.php
+│   │   │   │   ├── DeviceGroupCreateDTO.php
 │   │   │   │   ├── DeviceInitDTO.php
 │   │   │   │   ├── DevicePairDTO.php
 │   │   │   │   ├── DevicePublishDTO.php
@@ -330,12 +343,15 @@ Plaisoram_Server/
 │   │   │   │   └── DeviceUpdateDTO.php
 │   │   │   ├── Entity/
 │   │   │   │   ├── Device.php
+│   │   │   │   ├── DeviceGroup.php
 │   │   │   │   └── RateLimitAttempt.php
 │   │   │   ├── EventListener/
 │   │   │   │   └── DeviceStatusListener.php
 │   │   │   ├── Message/
 │   │   │   ├── MessageHandler/
 │   │   │   ├── Repository/
+│   │   │   │   ├── DeviceGroupRepository.php
+│   │   │   │   ├── DeviceGroupRepositoryInterface.php
 │   │   │   │   ├── DeviceRepository.php
 │   │   │   │   ├── DeviceRepositoryInterface.php
 │   │   │   │   └── RateLimitAttemptRepository.php
@@ -355,7 +371,8 @@ Plaisoram_Server/
 │   │   │   ├── DTO/
 │   │   │   │   ├── MediaConfirmUploadDTO.php
 │   │   │   │   ├── MediaFolderCreateDTO.php
-│   │   │   │   └── MediaFolderUpdateDTO.php
+│   │   │   │   ├── MediaFolderUpdateDTO.php
+│   │   │   │   └── MediaPresignedUrlDTO.php
 │   │   │   ├── Entity/
 │   │   │   │   ├── Media.php
 │   │   │   │   └── MediaFolder.php
