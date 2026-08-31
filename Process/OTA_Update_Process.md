@@ -15,21 +15,21 @@ sequenceDiagram
     autonumber
     actor Dev as Developer / CI
     participant GA as GitHub Actions (CI/CD)
-    participant DO as DigitalOcean Spaces (S3)
-    participant Backend as Symfony Server (API)
+    participant GCS as Google Cloud Storage (GCS)
+    participant Backend as Symfony Server (GCP VM)
     participant Hub as Mercure Real-time Hub
     participant Player as Android TV Player
 
     Dev->>GA: git tag v2.3.4 && git push origin v2.3.4
     GA->>GA: Compute Version Code (e.g. 20304)
     GA->>GA: Decode Keystore & ./gradlew assembleRelease
-    GA->>DO: Upload signed APK via boto3 (plaisoram-files/releases)
+    GA->>GCS: Upload signed APK via boto3 (plaisoram-files/releases)
     GA->>Backend: POST /api/admin/app-version/register
     Backend->>Backend: Persist AppRelease Entity in PostgreSQL
     Backend->>Hub: Publish AppUpdateAvailable Event
     Hub-->>Player: Real-Time SSE Push Event
     Note over Player: Checks Current Playlist Status
-    Player->>DO: Download update_release.apk.tmp (atomic check)
+    Player->>GCS: Download update_release.apk.tmp (atomic check)
     alt Mandatory Update OR Default Playlist Active
         Player->>Player: Trigger PackageInstaller (Silent / Device Owner)
     else Active Scheduled Campaign Playing
@@ -47,16 +47,16 @@ sequenceDiagram
   $$\text{versionCode} = (\text{MAJOR} \times 10000) + (\text{MINOR} \times 100) + \text{PATCH}$$
   *(e.g., `v2.3.4` $\rightarrow$ `20304`).*
 * **Build & Signing:** Decodes the production keystore secret (`RELEASE_KEYSTORE_BASE64`), runs `./gradlew assembleRelease`, and cleans up keystore credentials immediately.
-* **S3 Hosting:** Uses Python `boto3` to upload the APK directly to DigitalOcean Spaces with `ACL=public-read`.
-* **API Registration:** Issues an authenticated `POST /api/admin/app-version/register` request to the Symfony production server.
+* **Storage Hosting:** Uses Python `boto3` to upload the APK directly to Google Cloud Storage (`gs://plaisoram-files/releases/`).
+* **API Registration:** Issues an authenticated `POST /api/admin/app-version/register` request to the Symfony production server on GCP.
 
 ---
 
-### B. Cloud Storage: DigitalOcean Spaces (S3)
+### B. Cloud Storage: Google Cloud Storage (GCS)
 * **Bucket Name:** `plaisoram-files`
-* **Region:** Frankfurt (`fra1`)
-* **Endpoint:** `https://fra1.digitaloceanspaces.com`
-* **Public File URL:** `https://plaisoram-files.fra1.digitaloceanspaces.com/releases/plaisoram-player-vX.Y.Z.apk`
+* **Region:** Frankfurt (`europe-west3`)
+* **Endpoint:** `https://storage.googleapis.com`
+* **Public File URL:** `https://storage.googleapis.com/plaisoram-files/releases/plaisoram-player-vX.Y.Z.apk`
 
 ---
 
