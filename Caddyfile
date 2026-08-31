@@ -1,8 +1,9 @@
 {
     # Global options
+    email info@plaisoram.com
 }
 
-:80 {
+35.241.172.218.sslip.io {
     # 0. Healthcheck Endpoint
     handle /healthz {
         respond "OK" 200
