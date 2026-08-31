@@ -1,0 +1,27 @@
+{
+    # Global options
+}
+
+:80 {
+    # 0. Healthcheck Endpoint
+    handle /healthz {
+        respond "OK" 200
+    }
+
+    # 1. Mercure SSE Real-time Hub
+    handle /.well-known/mercure* {
+        reverse_proxy mercure:80
+    }
+
+    # 2. Node.js Socket.io Real-time Gateway
+    handle /socket.io/* {
+        reverse_proxy realtime:3001
+    }
+
+    # 3. Symfony PHP 8.4-FPM API
+    handle {
+        root * /var/www/html/public
+        php_fastcgi symfony:9000
+        file_server
+    }
+}

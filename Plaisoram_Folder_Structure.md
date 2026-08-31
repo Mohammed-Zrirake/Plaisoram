@@ -1,6 +1,6 @@
 # Plaisoram — Complete Folder Structure
 
-> **Generated:** 2026-08-04 14:35:54
+> **Generated:** 2026-08-31 15:20:57
 >
 > **Excluded (auto-generated / not developer-authored):**
 > `.git` · `node_modules` · `vendor` · `.next` · `build` · `out` · `.gradle`
@@ -113,6 +113,8 @@ plaisoram_web/
 │   │   │       ├── page.tsx
 │   │   │       ├── profile/
 │   │   │       │   ├── layout.tsx
+│   │   │       │   └── page.tsx
+│   │   │       ├── releases/
 │   │   │       │   └── page.tsx
 │   │   │       └── support/
 │   │   │           ├── layout.tsx
@@ -248,6 +250,7 @@ Plaisoram_Server/
 │       └── release.yml
 ├── .gitignore
 ├── .releaserc.json
+├── Dockerfile
 ├── bin/
 │   ├── console
 │   ├── phpunit
@@ -316,7 +319,8 @@ Plaisoram_Server/
 │   ├── Version20260728130000.php
 │   ├── Version20260728160000.php
 │   ├── Version20260729175800.php
-│   └── Version20260731164100.php
+│   ├── Version20260731164100.php
+│   └── Version20260805125200.php
 ├── phpunit.dist.xml
 ├── public/
 │   ├── .htaccess
@@ -328,8 +332,8 @@ Plaisoram_Server/
 │   ├── Kernel.php
 │   ├── Modules/
 │   │   ├── Device/
-│   │   │   ├── Command/
 │   │   │   ├── Controller/
+│   │   │   │   ├── AppReleaseController.php
 │   │   │   │   ├── DeviceController.php
 │   │   │   │   └── DeviceGroupController.php
 │   │   │   ├── DTO/
@@ -342,6 +346,7 @@ Plaisoram_Server/
 │   │   │   │   ├── DeviceStatusDTO.php
 │   │   │   │   └── DeviceUpdateDTO.php
 │   │   │   ├── Entity/
+│   │   │   │   ├── AppRelease.php
 │   │   │   │   ├── Device.php
 │   │   │   │   ├── DeviceGroup.php
 │   │   │   │   └── RateLimitAttempt.php
@@ -350,6 +355,7 @@ Plaisoram_Server/
 │   │   │   ├── Message/
 │   │   │   ├── MessageHandler/
 │   │   │   ├── Repository/
+│   │   │   │   ├── AppReleaseRepository.php
 │   │   │   │   ├── DeviceGroupRepository.php
 │   │   │   │   ├── DeviceGroupRepositoryInterface.php
 │   │   │   │   ├── DeviceRepository.php
@@ -506,6 +512,9 @@ Plaisoram_Server/
 
 ```
 Plaisoram_Player/
+├── .github/
+│   └── workflows/
+│       └── build-release-apk.yml
 ├── .gitignore
 ├── README.md
 ├── app/
@@ -540,6 +549,7 @@ Plaisoram_Player/
 │           │               │   ├── remote/
 │           │               │   │   ├── DeviceHealthSocketManager.kt
 │           │               │   │   ├── MercureService.kt
+│           │               │   │   ├── OtaUpdateManager.kt
 │           │               │   │   ├── PlaisoramApi.kt
 │           │               │   │   └── dto/
 │           │               │   │       ├── InitDeviceRequestDto.kt
@@ -630,7 +640,8 @@ Plaisoram_Player/
 │               │   └── themes.xml
 │               └── xml/
 │                   ├── backup_rules.xml
-│                   └── data_extraction_rules.xml
+│                   ├── data_extraction_rules.xml
+│                   └── file_paths.xml
 ├── build.gradle.kts
 ├── gradle/
 │   ├── gradle-daemon-jvm.properties
@@ -642,6 +653,7 @@ Plaisoram_Player/
 ├── gradlew
 ├── gradlew.bat
 ├── local.properties
+├── release.apk
 └── settings.gradle.kts
 ```
 

@@ -1,0 +1,130 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - symfony_public:/var/www/html/public:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      symfony:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+      mercure:
+        condition: service_healthy
+
+  symfony:
+    build:
+      context: ./Plaisoram_Server
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.production
+    volumes:
+      - symfony_var:/var/www/html/var
+      - symfony_public:/var/www/html/public
+      - ./Plaisoram_Server/config/jwt:/var/www/html/config/jwt:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm -t || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      mercure:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./Plaisoram_Server
+      dockerfile: Dockerfile
+    restart: always
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
+    env_file:
+      - .env.production
+    volumes:
+      - symfony_var:/var/www/html/var
+      - ./Plaisoram_Server/config/jwt:/var/www/html/config/jwt:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      symfony:
+        condition: service_healthy
+
+  realtime:
+    build:
+      context: ./Plaisoram_Realtime
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.production
+    environment:
+      - PORT=3001
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3001/ || exit 0"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  mercure:
+    image: dunglas/mercure
+    restart: always
+    environment:
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET:?MERCURE_JWT_SECRET must be set in .env.production}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET:?MERCURE_JWT_SECRET must be set in .env.production}
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins *
+        anonymous
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - mercure_data:/data
+      - mercure_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+  symfony_var:
+  symfony_public:
+  mercure_data:
+  mercure_config:
