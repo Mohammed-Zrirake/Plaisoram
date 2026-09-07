@@ -15,7 +15,7 @@
     }
 
     # 2. Node.js Socket.io Real-time Gateway
-    handle /socket.io/* {
+    handle /socket.io* {
         reverse_proxy realtime:3001
     }
 
